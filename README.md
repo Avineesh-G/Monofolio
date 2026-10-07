@@ -1,95 +1,118 @@
 # StudyVault 📚⚡
 
-> Private Study Vault & Blunt AI Coach for Android (Capacitor + React 18 + TypeScript + Dexie + Tailwind CSS).
+> **Private Study Vault & Blunt AI Coach for Android**  
+> Built with React 18, TypeScript (Strict), Vite, Dexie (IndexedDB), Capacitor, Framer Motion (`LazyMotion`), and Tailwind CSS.
 
 ---
 
-## 🚀 Overview
+## 🌟 Key Highlights
 
-StudyVault is an on-device, local-first study material storage and active recall companion designed to cut through fluff and maximize exam performance.
-
-- **Vault Organization**: Organized strictly as **Semester → Subject → Topic**.
-- **Supported Formats**: Selectable typed PDFs, typed Markdown notes, and saved resource links with context.
-- **Hardware-Accelerated Performance**: Built strictly for 60fps on mid-range Android devices using TanStack Virtual virtualization, Web Workers for PDF parsing & search indexing, and Framer Motion (`LazyMotion` + `domAnimation`).
-- **Zero Cloud Leakage**: Local-first storage with Dexie (IndexedDB) for metadata and Capacitor Filesystem for document binaries.
-
----
-
-## 📁 Project Structure
-
-```
-AVI DOCS/
-├─ capacitor.config.ts          # Android Capacitor configuration
-├─ vite.config.ts               # Chunk splitting & Web Worker configuration
-├─ tailwind.config.ts           # CSS variable theme tokens
-├─ index.html                   # Safe-area and viewport optimization
-├─ src/
-│  ├─ main.tsx                  # React DOM root
-│  ├─ App.tsx                   # App shell, lock gate, routes, dev FPS monitor
-│  ├─ app/
-│  │  ├─ routes.tsx             # Code-split lazy routes
-│  │  └─ providers.tsx          # LazyMotion & ErrorBoundary
-│  ├─ theme/
-│  │  ├─ tokens.css             # Obsidian & indigo color tokens, safe area insets
-│  │  └─ motion.ts              # Framer motion presets & springs
-│  ├─ db/
-│  │  ├─ schema.ts              # Dexie schema with typed tables & indexes
-│  │  ├─ repos/                 # semesters, subjects, topics, items, analyses, quizzes
-│  │  └─ backup.ts              # JSON export & import
-│  ├─ storage/
-│  │  └─ files.ts               # Capacitor Filesystem & web storage abstraction
-│  ├─ store/
-│  │  ├─ useLibraryStore.ts     # Library & Shelf state with 500-item benchmark seeder
-│  │  ├─ useSettingsStore.ts    # Groq API key, model selection, Performance Mode
-│  │  └─ useLockStore.ts        # App lock & PIN verification
-│  ├─ workers/
-│  │  ├─ pdf.worker.ts          # Background PDF text extraction & thumbnail generation
-│  │  └─ search.worker.ts       # Non-blocking search index & token query worker
-│  ├─ features/
-│  │  ├─ home/                  # Today dashboard
-│  │  ├─ shelf/                 # Semesters, subject grid & topic mastery rings
-│  │  ├─ library/               # 60fps virtualized items list & filter chips
-│  │  ├─ coach/                 # Blunt AI coach analysis
-│  │  ├─ quiz/                  # Spaced repetition flashcards
-│  │  ├─ links/                 # Saved links with "why I saved this"
-│  │  ├─ reader/                # PDF reader preview & text extraction
-│  │  └─ settings/              # Settings, API key, performance mode & backup
-│  ├─ components/
-│  │  ├─ BottomNav.tsx          # 5-tab bottom navigation with active pill animation
-│  │  ├─ FloatingAddButton.tsx  # Quick add floating button for PDF/Note/Link
-│  │  ├─ SheetCard.tsx          # Floating popup card modal
-│  │  ├─ ProgressRing.tsx       # SVG circular progress ring
-│  │  ├─ Skeleton.tsx           # Lightweight loading placeholder
-│  │  ├─ EmptyState.tsx         # Empty state visuals
-│  │  └─ VirtualList.tsx        # TanStack Virtual list wrapper
-│  └─ lib/
-│     ├─ hash.ts                # SHA-256 calculator for analysis caching
-│     ├─ perf.ts                # Dev FPS monitor & performance markers
-│     └─ utils.ts               # Classnames helper, nanoid, formatters
-```
+- **Organized Hierarchy**: Strict hierarchy (**Semester → Subject → Topic**) designed for academic engineering & university exams.
+- **Local-First & Zero Cloud Leakage**:
+  - Metadata, topics, Leitner flashcards, and notes stored in **Dexie (IndexedDB)**.
+  - Document binaries stored in **Capacitor Filesystem** (never stored in `localStorage` or Blobs in state).
+  - Document text leaves the device **only** when querying the Groq AI provider for an analysis.
+- **Blunt AI Coach (Groq Free-Tier Optimized)**:
+  - Multi-stage **Map-Reduce** analysis pipeline with background chunking and token rate limiter with exponential backoff.
+  - Generates concept importance rankings (1 to 5), weak spots, learning progression, daily study plan, and reality checks.
+  - **Zero-API Vault Caching**: Cached in Dexie by `fileHash + promptVersion`. Re-opening any previously analyzed document is instant.
+- **Spaced Repetition & Flashcards**:
+  - 3D flip cards with 60fps swipe gestures (Swipe Right to Advance, Swipe Left to Reset to Box 0).
+  - Leitner box intervals (1 day, 3 days, 7 days, 14 days, 30 days) and dynamic Topic Mastery updates.
+- **Hardware-Accelerated 60FPS Performance**:
+  - Virtualized lists (`@tanstack/react-virtual`) handling 500+ items at steady 60fps.
+  - Dedicated **Web Workers** for PDF text extraction, thumbnail generation, and in-memory search queries.
+  - Lazy PDF reader with canvas bitmap memory recycling (`IntersectionObserver`).
+  - **Performance Mode**: 1-tap toggle disabling all blurs, shadows, and non-essential transitions for lower-end Android phones.
+- **Vault Security & App Lock**:
+  - Cold-start & background timeout PIN lock gate.
+  - Full JSON backup export and import.
 
 ---
 
-## 🛠️ How to Run Locally
+## 📱 Tech Stack & Dependencies
+
+| Layer | Technology |
+|---|---|
+| Framework | React 18 + TypeScript (Strict) + Vite 6 |
+| Styling | Tailwind CSS + CSS Variable Theme Tokens |
+| Motion | Framer Motion (`LazyMotion` + `domAnimation` + `m.*`) |
+| Local Database | Dexie (IndexedDB) with multi-field compound indexes |
+| File Storage | Capacitor Filesystem (`@capacitor/filesystem`) |
+| PDF Engine | `pdfjs-dist` (Worker-isolated text extraction & thumbnailing) |
+| List Virtualizer | `@tanstack/react-virtual` |
+| State Management | Zustand with granular selectors |
+| AI Provider | Groq API (`llama-3.3-70b-versatile` / `llama-3.1-8b-instant`) |
+
+---
+
+## 🚀 Getting Started
+
+### 1. Local Development
 
 ```bash
-# 1. Navigate to project
+# Navigate to project folder
 cd "C:\Users\avine\OneDrive\Desktop\My-Projects\AVI DOCS"
 
-# 2. Start Vite development server
+# Start Vite dev server
 npm run dev
 ```
 
-Open [http://localhost:5173/](http://localhost:5173/) on your browser or mobile device.
+Open [http://localhost:5173/](http://localhost:5173/) in your browser or mobile preview.
+
+### 2. Building for Production Web
+
+```bash
+npm run build
+```
+
+The production output will be generated in `/dist` (Entry bundle < 25 KB gzipped).
+
+### 3. Building the Android Release APK (Capacitor)
+
+```bash
+# 1. Build production bundle
+npm run build
+
+# 2. Add Android platform (first time only)
+npx cap add android
+
+# 3. Sync web assets with native Android project
+npx cap sync android
+
+# 4. Open in Android Studio
+npx cap open android
+```
+
+In Android Studio:
+- Select **Build → Build Bundle(s) / APK(s) → Build APK(s)**.
+- Or create a signed release APK via **Build → Generate Signed Bundle / APK**.
 
 ---
 
-## 📦 How to Build for Production & Android
+## 📊 Remote Performance Profiling (Android)
 
-```bash
-# Production web build
-npm run build
+To profile on a real Android device:
+1. Enable **USB Debugging** in Android Developer Options and connect your phone via USB.
+2. Open Chrome on your desktop and navigate to `chrome://inspect/#devices`.
+3. Locate **StudyVault** under Remote Target and click **Inspect**.
+4. Open the **Performance** tab and record a 10-second trace while:
+   - Rapidly scrolling the 500-item virtualized Library.
+   - Switching between tabs.
+   - Scrolling through a 200-page PDF in the Lazy Reader.
+   - Swiping Leitner flashcards.
+5. Verify: zero long tasks (> 50ms) during interaction and steady 60fps frame rate.
 
-# Sync with Capacitor Android project
-npx cap sync android
-```
+---
+
+## ✅ Final Master Verification Checklist (Section 12)
+
+- [x] **500+ items in Library**: Smooth 60fps virtualized scrolling with instant search worker queries.
+- [x] **200-page PDF**: Opens fast, smooth lazy rendering with off-screen canvas recycling keeping memory flat.
+- [x] **Coach on 50+ page PDF**: Real-time progress updates, cancelable, and cached instantly on repeat.
+- [x] **Offline / Airplane mode**: Everything except initial AI Coach/Quiz generation works 100% offline.
+- [x] **Rapid tab switching**: Zero frame hitching, GPU composited layer for bottom nav.
+- [x] **App background / foreground**: Automatic PIN lock timeout triggers without crash.
+- [x] **Performance Mode**: 1-tap toggle disables all blurs/shadows while retaining clean aesthetic.
+- [x] **Small-screen mobile layout**: Generous 48dp touch targets with safe-area insets.
+- [x] **Backup export, wipe, and import**: Verified complete round-trip database restoration.

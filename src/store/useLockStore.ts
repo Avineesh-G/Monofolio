@@ -3,22 +3,27 @@ import { create } from 'zustand';
 interface LockState {
   isLocked: boolean;
   pin: string | null;
+  lockTimeoutMs: number;
   lastActiveTimestamp: number;
 
   setPin: (pin: string | null) => void;
+  removePin: () => void;
+  setLockTimeout: (ms: number) => void;
   verifyPin: (enteredPin: string) => boolean;
   unlock: () => void;
   lock: () => void;
   updateActiveTimestamp: () => void;
-  checkLockTimeout: (timeoutMs: number) => void;
+  checkLockTimeout: () => void;
   initLock: () => void;
 }
 
 const PIN_KEY = 'studyvault_pin_hash';
+const TIMEOUT_KEY = 'studyvault_lock_timeout';
 
 export const useLockStore = create<LockState>((set, get) => ({
   isLocked: false,
   pin: null,
+  lockTimeoutMs: 60000, // 1 minute default
   lastActiveTimestamp: Date.now(),
 
   setPin: (pin) => {
@@ -28,6 +33,16 @@ export const useLockStore = create<LockState>((set, get) => ({
     } else {
       localStorage.removeItem(PIN_KEY);
     }
+  },
+
+  removePin: () => {
+    set({ pin: null, isLocked: false });
+    localStorage.removeItem(PIN_KEY);
+  },
+
+  setLockTimeout: (ms) => {
+    set({ lockTimeoutMs: ms });
+    localStorage.setItem(TIMEOUT_KEY, ms.toString());
   },
 
   verifyPin: (enteredPin) => {
@@ -50,10 +65,11 @@ export const useLockStore = create<LockState>((set, get) => ({
     set({ lastActiveTimestamp: Date.now() });
   },
 
-  checkLockTimeout: (timeoutMs) => {
-    const { pin, isLocked, lastActiveTimestamp } = get();
+  checkLockTimeout: () => {
+    const { pin, isLocked, lastActiveTimestamp, lockTimeoutMs } = get();
     if (pin && !isLocked) {
-      if (Date.now() - lastActiveTimestamp > timeoutMs) {
+      const elapsed = Date.now() - lastActiveTimestamp;
+      if (elapsed > lockTimeoutMs) {
         set({ isLocked: true });
       }
     }
@@ -61,11 +77,18 @@ export const useLockStore = create<LockState>((set, get) => ({
 
   initLock: () => {
     try {
-      const stored = localStorage.getItem(PIN_KEY);
-      if (stored) {
-        const decodedPin = atob(stored);
-        set({ pin: decodedPin, isLocked: true });
-      }
+      const storedPin = localStorage.getItem(PIN_KEY);
+      const storedTimeout = localStorage.getItem(TIMEOUT_KEY);
+
+      const pin = storedPin ? atob(storedPin) : null;
+      const timeout = storedTimeout ? parseInt(storedTimeout, 10) : 60000;
+
+      set({
+        pin,
+        lockTimeoutMs: isNaN(timeout) ? 60000 : timeout,
+        isLocked: Boolean(pin),
+        lastActiveTimestamp: Date.now(),
+      });
     } catch {
       // Ignore
     }

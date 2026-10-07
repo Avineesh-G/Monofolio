@@ -36,6 +36,8 @@ export const App: React.FC = () => {
   const verifyPin = useLockStore(state => state.verifyPin);
   const unlock = useLockStore(state => state.unlock);
   const initLock = useLockStore(state => state.initLock);
+  const checkLockTimeout = useLockStore(state => state.checkLockTimeout);
+  const updateActiveTimestamp = useLockStore(state => state.updateActiveTimestamp);
 
   const [fps, setFps] = useState(60);
   const [enteredPin, setEnteredPin] = useState('');
@@ -51,10 +53,30 @@ export const App: React.FC = () => {
       setFps(currentFps);
     });
 
+    // App backgrounding & lock gate listeners
+    const handleVisibilityChange = () => {
+      if (document.hidden) {
+        updateActiveTimestamp();
+      } else {
+        checkLockTimeout();
+      }
+    };
+
+    const handleUserActivity = () => {
+      updateActiveTimestamp();
+    };
+
+    document.addEventListener('visibilitychange', handleVisibilityChange);
+    window.addEventListener('touchstart', handleUserActivity, { passive: true });
+    window.addEventListener('click', handleUserActivity, { passive: true });
+
     return () => {
       stopFpsMeter();
+      document.removeEventListener('visibilitychange', handleVisibilityChange);
+      window.removeEventListener('touchstart', handleUserActivity);
+      window.removeEventListener('click', handleUserActivity);
     };
-  }, [loadInitialData, loadSettings, initLock]);
+  }, [loadInitialData, loadSettings, initLock, checkLockTimeout, updateActiveTimestamp]);
 
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
@@ -71,7 +93,7 @@ export const App: React.FC = () => {
   // Lock Gate Screen if locked
   if (isLocked) {
     return (
-      <div className="h-full w-full bg-bg flex flex-col items-center justify-center p-6 text-center">
+      <div className="h-full w-full bg-bg flex flex-col items-center justify-center p-6 text-center select-none">
         <div className="w-16 h-16 rounded-3xl bg-accent-muted text-accent flex items-center justify-center mb-4">
           <Lock size={32} />
         </div>
