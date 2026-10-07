@@ -1,6 +1,7 @@
-import React, { useMemo } from 'react';
+import React, { useMemo, useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useLibraryStore } from '../../store/useLibraryStore';
+import { quizzesRepo } from '../../db/repos';
 import { ProgressRing } from '../../components/ProgressRing';
 import { 
   Sparkles, 
@@ -9,7 +10,9 @@ import {
   Bot, 
   AlertCircle, 
   ArrowRight,
-  FileText
+  FileText,
+  Brain,
+  CheckCircle2
 } from 'lucide-react';
 
 export const HomeScreen: React.FC = () => {
@@ -17,6 +20,12 @@ export const HomeScreen: React.FC = () => {
   const items = useLibraryStore(state => state.items);
   const subjects = useLibraryStore(state => state.subjects);
   const topics = useLibraryStore(state => state.topics);
+
+  const [dueCardsCount, setDueCardsCount] = useState<number>(0);
+
+  useEffect(() => {
+    quizzesRepo.countDue().then(count => setDueCardsCount(count));
+  }, []);
 
   // Recent PDF for continue reading
   const recentPdf = useMemo(() => {
@@ -48,6 +57,51 @@ export const HomeScreen: React.FC = () => {
           <span>Day 1 Streak</span>
         </div>
       </div>
+
+      {/* Revision Due Alert Card */}
+      {dueCardsCount > 0 ? (
+        <div className="p-4 rounded-2xl bg-gradient-to-br from-rose-950/30 via-bg-card to-bg-card border border-rose-500/30 shadow-lg">
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2 text-rose-400 text-xs font-bold uppercase tracking-wider">
+              <Brain size={15} />
+              <span>Spaced Repetition Due</span>
+            </div>
+            <span className="px-2 py-0.5 rounded-full bg-rose-500/20 text-rose-300 font-mono text-xs font-bold">
+              {dueCardsCount} cards
+            </span>
+          </div>
+
+          <p className="text-xs text-text-secondary leading-relaxed mb-3">
+            Cards in your Leitner boxes are ready for active recall practice.
+          </p>
+
+          <button
+            onClick={() => navigate('/quiz')}
+            className="w-full py-2.5 rounded-xl bg-rose-600 hover:bg-rose-500 text-white font-semibold text-xs flex items-center justify-center gap-1.5 active:scale-95 transition-all shadow-md shadow-rose-900/30"
+          >
+            <span>Review {dueCardsCount} Flashcards Now</span>
+            <ArrowRight size={13} />
+          </button>
+        </div>
+      ) : (
+        <div className="p-3.5 rounded-2xl bg-bg-card border border-border-subtle flex items-center justify-between">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-lg bg-emerald-500/20 text-emerald-400 flex items-center justify-center">
+              <CheckCircle2 size={16} />
+            </div>
+            <div>
+              <h4 className="text-xs font-semibold text-text-primary">All Revisions Completed</h4>
+              <p className="text-[10px] text-text-muted">Zero cards due in Leitner queue today</p>
+            </div>
+          </div>
+          <button
+            onClick={() => navigate('/quiz')}
+            className="text-xs font-semibold text-accent hover:underline"
+          >
+            Open Quiz
+          </button>
+        </div>
+      )}
 
       {/* Continue Reading Card */}
       {recentPdf ? (
@@ -100,9 +154,17 @@ export const HomeScreen: React.FC = () => {
       {/* Weakest Topic Alert Card */}
       {weakestTopic && (
         <div className="p-4 rounded-2xl bg-bg-card border border-border-subtle">
-          <div className="flex items-center gap-2 mb-2 text-rose-400">
-            <AlertCircle size={14} />
-            <span className="text-[10px] font-bold uppercase tracking-wider">Weakest Topic Detected</span>
+          <div className="flex items-center justify-between mb-2">
+            <div className="flex items-center gap-2 text-rose-400">
+              <AlertCircle size={14} />
+              <span className="text-[10px] font-bold uppercase tracking-wider">Weakest Topic Detected</span>
+            </div>
+            <button
+              onClick={() => navigate(`/shelf`)}
+              className="text-[10px] font-semibold text-accent hover:underline"
+            >
+              Practice Topic
+            </button>
           </div>
 
           <div className="flex items-center justify-between">
@@ -114,7 +176,7 @@ export const HomeScreen: React.FC = () => {
               progress={weakestTopic.mastery}
               size={36}
               strokeWidth={3.5}
-              color="#f43f5e"
+              color={weakestTopic.mastery < 50 ? '#f43f5e' : '#f59e0b'}
             />
           </div>
         </div>

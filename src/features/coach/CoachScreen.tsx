@@ -188,16 +188,28 @@ export const CoachScreen: React.FC = () => {
             <h1 className="text-xl font-bold text-text-primary tracking-tight">Exam Breakdown</h1>
           </div>
 
-          {analysis && (
-            <button
-              onClick={() => handleStartAnalysis(true)}
-              disabled={isAnalyzing}
-              className="p-2 rounded-xl bg-white/5 border border-border-subtle text-text-muted hover:text-text-primary active:scale-95 transition-all"
-              title="Re-analyze document"
-            >
-              <RefreshCw size={16} className={isAnalyzing ? 'animate-spin' : ''} />
-            </button>
-          )}
+          <div className="flex items-center gap-2">
+            {analysis && (
+              <button
+                onClick={() => navigate(`/quiz?itemId=${analysis.itemId}`)}
+                className="px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 text-purple-300 border border-purple-500/30 text-xs font-semibold flex items-center gap-1.5 active:scale-95 transition-all"
+              >
+                <Brain size={14} />
+                <span>Quiz Cards</span>
+              </button>
+            )}
+
+            {analysis && (
+              <button
+                onClick={() => handleStartAnalysis(true)}
+                disabled={isAnalyzing}
+                className="p-2 rounded-xl bg-white/5 border border-border-subtle text-text-muted hover:text-text-primary active:scale-95 transition-all"
+                title="Re-analyze document"
+              >
+                <RefreshCw size={16} className={isAnalyzing ? 'animate-spin' : ''} />
+              </button>
+            )}
+          </div>
         </div>
 
         {/* Document Selector */}
