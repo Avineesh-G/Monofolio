@@ -53,7 +53,6 @@ export const App: React.FC = () => {
       setFps(currentFps);
     });
 
-    // App backgrounding & lock gate listeners
     const handleVisibilityChange = () => {
       if (document.hidden) {
         updateActiveTimestamp();
@@ -90,15 +89,14 @@ export const App: React.FC = () => {
     }
   };
 
-  // Lock Gate Screen if locked
   if (isLocked) {
     return (
-      <div className="h-full w-full bg-bg flex flex-col items-center justify-center p-6 text-center select-none">
-        <div className="w-16 h-16 rounded-3xl bg-accent-muted text-accent flex items-center justify-center mb-4">
+      <div className="h-full w-full bg-surface text-on-surface flex flex-col items-center justify-center p-6 text-center select-none">
+        <div className="w-16 h-16 rounded-3xl bg-primary/20 text-primary flex items-center justify-center mb-4">
           <Lock size={32} />
         </div>
-        <h1 className="text-lg font-bold text-text-primary mb-1">StudyVault is Locked</h1>
-        <p className="text-xs text-text-secondary mb-6">Enter your security PIN to access your study materials.</p>
+        <h1 className="text-lg font-bold text-on-surface mb-1">StudyVault is Locked</h1>
+        <p className="text-xs text-on-surface-variant mb-6">Enter your security PIN to access your study materials.</p>
 
         <form onSubmit={handleUnlock} className="w-full max-w-xs space-y-3">
           <input
@@ -111,13 +109,13 @@ export const App: React.FC = () => {
               setPinError(false);
             }}
             placeholder="Enter PIN"
-            className="w-full text-center tracking-widest text-lg px-4 py-3 rounded-xl bg-surface-container-high border-none text-text-primary focus:outline-none focus:ring-2 focus:ring-accent"
+            className="w-full text-center tracking-widest text-lg px-4 py-3 rounded-xl bg-surface-container-high border-none text-on-surface focus:outline-none focus:ring-2 focus:ring-primary"
             autoFocus
           />
-          {pinError && <p className="text-xs text-rose-400">Incorrect PIN. Try again.</p>}
+          {pinError && <p className="text-xs text-error">Incorrect PIN. Try again.</p>}
           <button
             type="submit"
-            className="w-full py-3 rounded-xl bg-accent text-white font-semibold text-sm active:scale-98 transition-all"
+            className="w-full py-3 rounded-xl bg-primary text-on-primary font-semibold text-sm active:scale-98 transition-all"
           >
             Unlock Vault
           </button>
@@ -129,8 +127,8 @@ export const App: React.FC = () => {
   return (
     <BrowserRouter>
       <div className="h-full w-full flex flex-col bg-surface text-on-surface overflow-hidden relative">
-        {/* Dev FPS Meter & Perf Indicator */}
-        <div className="fixed top-2 right-3 z-50 pointer-events-none flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-mono text-emerald-400 shadow-md">
+        {/* Dev FPS Meter - Positioned at top-center so it NEVER overlaps action buttons */}
+        <div className="fixed top-2.5 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-[10px] font-mono text-emerald-400 shadow-md">
           <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           <span>{fps} FPS</span>
           {performanceMode && (
@@ -140,7 +138,7 @@ export const App: React.FC = () => {
           )}
         </div>
 
-        {/* Main Content Area - Scrollable with fluid momentum */}
+        {/* Main Content Area - Momentum Scrolling */}
         <main className="flex-1 overflow-y-auto scroll-container relative overscroll-y-contain">
           <RouteRenderer />
         </main>

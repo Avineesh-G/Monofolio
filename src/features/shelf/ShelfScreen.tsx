@@ -1,20 +1,25 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useMemo, useRef } from 'react';
 import { motion } from 'framer-motion';
-import { db, Semester, Subject, Topic } from '../../db';
-import { TopAppBar } from '../../components/m3e';
-import { TopicRow } from '../../components/m3e/cards';
+import { db, Semester, Subject, Topic, Item } from '../../db';
+import { itemsRepo, semestersRepo, subjectsRepo, topicsRepo } from '../../db/repos';
+import { filesStorage } from '../../storage/files';
+import { computeHash } from '../../lib/hash';
+import { TopAppBar, SheetCard, Button, LoadingIndicator } from '../../components/m3e';
+import { TopicRow, SubjectCard, DocumentCard } from '../../components/m3e/cards';
 import { ShapeBadge } from '../../components/m3e/ShapeBadge';
-import { BookOpen, Layers, Sparkles, Compass } from 'lucide-react';
+import { Plus, BookOpen, Layers, Sparkles, FileText, Compass, Check } from 'lucide-react';
 import { useMotionPreset } from '../../theme/motion';
 
 interface ShelfScreenProps {
   onOpenSubject?: (subjectId: string) => void;
   onOpenTopic?: (topicId: string) => void;
+  onOpenDocument?: (docId: string) => void;
   onNavigateTab?: (tab: string) => void;
 }
 
 export const ShelfScreen: React.FC<ShelfScreenProps> = ({
   onOpenTopic,
+  onOpenDocument,
   onNavigateTab,
 }) => {
   const [semesters, setSemesters] = useState<Semester[]>([]);
@@ -22,79 +27,240 @@ export const ShelfScreen: React.FC<ShelfScreenProps> = ({
   const [subjects, setSubjects] = useState<Subject[]>([]);
   const [selectedSubject, setSelectedSubject] = useState<Subject | null>(null);
   const [topics, setTopics] = useState<Topic[]>([]);
+  const [subjectDocs, setSubjectDocs] = useState<Item[]>([]);
   const [subjectDocCounts, setSubjectDocCounts] = useState<Map<string, number>>(new Map());
+  const [subjectTopicCounts, setSubjectTopicCounts] = useState<Map<string, number>>(new Map());
+  
+  // Filters
+  const [filterType, setFilterType] = useState<'all' | 'pdf' | 'note' | 'link'>('all');
+  
+  // Modals
+  const [isSemesterModalOpen, setIsSemesterModalOpen] = useState(false);
+  const [newSemesterName, setNewSemesterName] = useState('');
+  
+  const [isSubjectModalOpen, setIsSubjectModalOpen] = useState(false);
+  const [newSubjectName, setNewSubjectName] = useState('');
+  const [newSubjectColor, setNewSubjectColor] = useState('#d0bcff');
+
+  const [isTopicModalOpen, setIsTopicModalOpen] = useState(false);
+  const [newTopicName, setNewTopicName] = useState('');
+
+  const [isDocModalOpen, setIsDocModalOpen] = useState(false);
+  const [docModalTab, setDocModalTab] = useState<'note' | 'link'>('note');
+  const [newDocTitle, setNewDocTitle] = useState('');
+  const [newDocBody, setNewDocBody] = useState('');
+  const [newDocUrl, setNewDocUrl] = useState('');
+
+  const [isUploadingPdf, setIsUploadingPdf] = useState(false);
+  const [uploadStatus, setUploadStatus] = useState('');
+
+  const fileInputRef = useRef<HTMLInputElement>(null);
   const motionPreset = useMotionPreset();
 
-  useEffect(() => {
-    const loadShelf = async () => {
-      try {
-        const sems = await db.semesters.orderBy('orderIndex').toArray();
-        setSemesters(sems);
-        if (sems.length > 0) {
-          setSelectedSemId(sems[0].id);
-        }
-      } catch (err) {
-        console.error('Failed to load semesters:', err);
+  const loadShelfData = async () => {
+    try {
+      const sems = await db.semesters.toArray();
+      setSemesters(sems);
+      if (sems.length > 0 && !selectedSemId) {
+        setSelectedSemId(sems[0].id);
       }
-    };
-    loadShelf();
+    } catch (err) {
+      console.error('Failed to load semesters:', err);
+    }
+  };
+
+  useEffect(() => {
+    loadShelfData();
   }, []);
 
   useEffect(() => {
     if (!selectedSemId) return;
-    const loadSubjects = async () => {
+    const loadSubjectsForSemester = async () => {
       try {
         const subjs = await db.subjects.where('semesterId').equals(selectedSemId).toArray();
         setSubjects(subjs);
         if (subjs.length > 0) {
           setSelectedSubject(subjs[0]);
+        } else {
+          setSelectedSubject(null);
         }
 
-        const counts = new Map<string, number>();
+        const docCounts = new Map<string, number>();
+        const topCounts = new Map<string, number>();
         for (const s of subjs) {
-          const count = await db.documents.where('subjectId').equals(s.id).count();
-          counts.set(s.id, count);
+          const dCount = await db.documents.where('subjectId').equals(s.id).count();
+          const tCount = await db.topics.where('subjectId').equals(s.id).count();
+          docCounts.set(s.id, dCount);
+          topCounts.set(s.id, tCount);
         }
-        setSubjectDocCounts(counts);
+        setSubjectDocCounts(docCounts);
+        setSubjectTopicCounts(topCounts);
       } catch (err) {
         console.error('Failed to load subjects:', err);
       }
     };
-    loadSubjects();
+    loadSubjectsForSemester();
   }, [selectedSemId]);
 
   useEffect(() => {
-    if (!selectedSubject) return;
-    const loadTopics = async () => {
+    if (!selectedSubject) {
+      setTopics([]);
+      setSubjectDocs([]);
+      return;
+    }
+    const loadSubjectDetails = async () => {
       try {
         const topList = await db.topics.where('subjectId').equals(selectedSubject.id).toArray();
         setTopics(topList);
+
+        const docs = await db.documents.where('subjectId').equals(selectedSubject.id).toArray();
+        setSubjectDocs(docs);
       } catch (err) {
-        console.error('Failed to load topics:', err);
+        console.error('Failed to load subject details:', err);
       }
     };
-    loadTopics();
+    loadSubjectDetails();
   }, [selectedSubject]);
 
+  // Actions
+  const handleCreateSemester = async () => {
+    if (!newSemesterName.trim()) return;
+    const sem = await semestersRepo.create(newSemesterName.trim());
+    setNewSemesterName('');
+    setIsSemesterModalOpen(false);
+    await loadShelfData();
+    setSelectedSemId(sem.id);
+  };
+
+  const handleCreateSubject = async () => {
+    if (!newSubjectName.trim() || !selectedSemId) return;
+    const subj = await subjectsRepo.create(selectedSemId, newSubjectName.trim(), newSubjectColor, 'BookOpen');
+    setNewSubjectName('');
+    setIsSubjectModalOpen(false);
+    const subjs = await db.subjects.where('semesterId').equals(selectedSemId).toArray();
+    setSubjects(subjs);
+    setSelectedSubject(subj);
+  };
+
+  const handleCreateTopic = async () => {
+    if (!newTopicName.trim() || !selectedSubject) return;
+    await topicsRepo.create(selectedSubject.id, newTopicName.trim());
+    setNewTopicName('');
+    setIsTopicModalOpen(false);
+    const topList = await db.topics.where('subjectId').equals(selectedSubject.id).toArray();
+    setTopics(topList);
+  };
+
+  const handleUploadPdfClick = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handlePdfFileSelected = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file || !selectedSubject) return;
+
+    setIsUploadingPdf(true);
+    setUploadStatus('Processing PDF in background...');
+
+    try {
+      const arrayBuffer = await file.arrayBuffer();
+      const hash = await computeHash(arrayBuffer);
+      const filePath = await filesStorage.saveFile(file.name, arrayBuffer);
+
+      const worker = new Worker(new URL('../../workers/pdf.worker.ts', import.meta.url), { type: 'module' });
+      worker.onmessage = async (event) => {
+        const data = event.data;
+        if (data.type === 'result') {
+          await itemsRepo.create({
+            kind: 'pdf',
+            title: file.name.replace(/\.[^/.]+$/, ''),
+            subjectId: selectedSubject.id,
+            filePath,
+            fileHash: hash,
+            pageCount: data.pageCount,
+            textLength: data.charCount,
+            thumbnail: data.thumbnail,
+          });
+          worker.terminate();
+          setIsUploadingPdf(false);
+          const docs = await db.documents.where('subjectId').equals(selectedSubject.id).toArray();
+          setSubjectDocs(docs);
+        }
+      };
+      worker.postMessage({ arrayBuffer, generateThumbnail: true }, [arrayBuffer]);
+    } catch (err) {
+      console.error('PDF upload error:', err);
+      setIsUploadingPdf(false);
+    }
+  };
+
+  const handleSaveDocument = async () => {
+    if (!newDocTitle.trim() || !selectedSubject) return;
+
+    if (docModalTab === 'note') {
+      await itemsRepo.create({
+        kind: 'note',
+        title: newDocTitle.trim(),
+        body: newDocBody.trim(),
+        subjectId: selectedSubject.id,
+      });
+    } else {
+      let formattedUrl = newDocUrl.trim();
+      if (!/^https?:\/\//i.test(formattedUrl)) formattedUrl = `https://${formattedUrl}`;
+      await itemsRepo.create({
+        kind: 'link',
+        title: newDocTitle.trim(),
+        url: formattedUrl,
+        linkNote: newDocBody.trim(),
+        subjectId: selectedSubject.id,
+      });
+    }
+
+    setNewDocTitle('');
+    setNewDocBody('');
+    setNewDocUrl('');
+    setIsDocModalOpen(false);
+
+    const docs = await db.documents.where('subjectId').equals(selectedSubject.id).toArray();
+    setSubjectDocs(docs);
+  };
+
+  const filteredDocs = useMemo(() => {
+    if (filterType === 'all') return subjectDocs;
+    return subjectDocs.filter(d => d.kind === filterType);
+  }, [subjectDocs, filterType]);
+
   const activeColor = selectedSubject?.color || '#d0bcff';
-  const activeDocCount = selectedSubject ? subjectDocCounts.get(selectedSubject.id) || 0 : 0;
 
   return (
     <div className="min-h-screen bg-surface text-on-surface pb-28">
+      {/* Hidden PDF file input */}
+      <input
+        ref={fileInputRef}
+        type="file"
+        accept="application/pdf"
+        onChange={handlePdfFileSelected}
+        className="hidden"
+      />
+
       <TopAppBar
         title="Study Shelf"
-        subtitle="Syllabus, Semesters & Subject Dossiers"
+        subtitle="Syllabus, Semesters & Course Hubs"
         trailingAction={
-          <div className="p-2 rounded-2xl bg-surface-container-high text-primary">
-            <Compass className="w-5 h-5" />
-          </div>
+          <button
+            onClick={() => setIsSubjectModalOpen(true)}
+            className="px-3 py-1.5 rounded-2xl bg-primary text-on-primary text-xs font-bold flex items-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
+          >
+            <Plus className="w-4 h-4" />
+            <span>Course</span>
+          </button>
         }
       />
 
       <main className="px-4 py-3 space-y-5 max-w-2xl mx-auto">
-        {/* Semester Capsule Selector */}
-        <section className="space-y-1">
-          <div className="flex gap-2 overflow-x-auto pb-1 scrollbar-none">
+        {/* Semester Selector & Manager */}
+        <section className="space-y-1.5">
+          <div className="flex items-center gap-2 overflow-x-auto pb-1 scrollbar-none">
             {semesters.map((sem) => {
               const isSelected = selectedSemId === sem.id;
               return (
@@ -111,11 +277,19 @@ export const ShelfScreen: React.FC<ShelfScreenProps> = ({
                 </button>
               );
             })}
+
+            <button
+              onClick={() => setIsSemesterModalOpen(true)}
+              className="px-3 py-2 rounded-full bg-surface-container-high text-primary hover:bg-surface-container-highest text-xs font-bold flex items-center gap-1 shrink-0 cursor-pointer"
+            >
+              <Plus className="w-3.5 h-3.5" />
+              <span>Semester</span>
+            </button>
           </div>
         </section>
 
-        {/* Panoramic Active Subject Dossier Banner */}
-        {selectedSubject && (
+        {/* Panoramic Active Course Spotlight */}
+        {selectedSubject ? (
           <motion.div
             key={selectedSubject.id}
             initial={{ opacity: 0, y: 8 }}
@@ -123,7 +297,6 @@ export const ShelfScreen: React.FC<ShelfScreenProps> = ({
             transition={motionPreset.spatialDefault}
             className="p-6 rounded-[32px] bg-gradient-to-br from-surface-container-high to-surface-container shadow-2xl relative overflow-hidden space-y-4"
           >
-            {/* Ambient subject glow */}
             <div
               className="absolute -right-10 -bottom-10 w-48 h-48 rounded-full blur-3xl opacity-20 pointer-events-none"
               style={{ backgroundColor: activeColor }}
@@ -141,40 +314,33 @@ export const ShelfScreen: React.FC<ShelfScreenProps> = ({
                 />
                 <div className="min-w-0 flex-1">
                   <span className="text-[10px] font-mono font-extrabold uppercase tracking-widest text-primary">
-                    Active Subject Dossier
+                    Course Dossier
                   </span>
                   <h2 className="text-xl font-extrabold text-on-surface truncate">
                     {selectedSubject.name}
                   </h2>
                   <p className="text-xs text-on-surface-variant font-medium">
-                    {topics.length} syllabus topics &bull; {activeDocCount} attached documents
+                    {topics.length} syllabus topics &bull; {subjectDocs.length} documents
                   </p>
                 </div>
               </div>
 
-              {/* Syllabus Completion Ring */}
-              <div className="relative w-14 h-14 shrink-0 flex items-center justify-center">
-                <svg className="w-full h-full -rotate-90" viewBox="0 0 36 36">
-                  <path
-                    className="text-white/10"
-                    strokeWidth="3.5"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                  <path
-                    style={{ color: activeColor }}
-                    strokeDasharray="75, 100"
-                    strokeWidth="3.5"
-                    strokeLinecap="round"
-                    stroke="currentColor"
-                    fill="none"
-                    d="M18 2.0845 a 15.9155 15.9155 0 0 1 0 31.831 a 15.9155 15.9155 0 0 1 0 -31.831"
-                  />
-                </svg>
-                <span className="absolute text-[11px] font-mono font-bold text-on-surface">
-                  75%
-                </span>
+              {/* Course Action Buttons */}
+              <div className="flex flex-col gap-1.5 shrink-0">
+                <button
+                  onClick={handleUploadPdfClick}
+                  className="px-3 py-1.5 rounded-xl bg-primary text-on-primary text-xs font-bold flex items-center gap-1.5 shadow-sm active:scale-95 transition-all cursor-pointer"
+                >
+                  <FileText className="w-3.5 h-3.5" />
+                  <span>Upload PDF</span>
+                </button>
+                <button
+                  onClick={() => setIsDocModalOpen(true)}
+                  className="px-3 py-1.5 rounded-xl bg-surface-container-highest text-on-surface text-xs font-bold flex items-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+                >
+                  <Plus className="w-3.5 h-3.5 text-primary" />
+                  <span>Add Note/Link</span>
+                </button>
               </div>
             </div>
 
@@ -182,87 +348,161 @@ export const ShelfScreen: React.FC<ShelfScreenProps> = ({
             <div className="flex items-center gap-2 pt-1">
               <button
                 onClick={() => onNavigateTab && onNavigateTab('quiz')}
-                className="flex-1 py-2.5 px-3.5 rounded-xl bg-primary text-on-primary text-xs font-bold flex items-center justify-center gap-1.5 shadow-md active:scale-95 transition-all cursor-pointer"
+                className="flex-1 py-2.5 px-3.5 rounded-xl bg-surface-container-highest text-on-surface text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-surface-container-lowest active:scale-95 transition-all cursor-pointer"
               >
-                <Layers className="w-3.5 h-3.5" />
-                <span>Quiz Subject Deck</span>
+                <Layers className="w-3.5 h-3.5 text-primary" />
+                <span>Practice Flashcards</span>
               </button>
               <button
                 onClick={() => onNavigateTab && onNavigateTab('coach')}
-                className="py-2.5 px-3.5 rounded-xl bg-surface-container-highest text-on-surface text-xs font-bold flex items-center justify-center gap-1.5 active:scale-95 transition-all cursor-pointer"
+                className="py-2.5 px-3.5 rounded-xl bg-surface-container-highest text-on-surface text-xs font-bold flex items-center justify-center gap-1.5 hover:bg-surface-container-lowest active:scale-95 transition-all cursor-pointer"
               >
                 <Sparkles className="w-3.5 h-3.5 text-primary" />
                 <span>AI Coach Analysis</span>
               </button>
             </div>
           </motion.div>
+        ) : (
+          <div className="p-8 text-center bg-surface-container rounded-3xl space-y-2">
+            <Compass className="w-10 h-10 mx-auto text-primary mb-1" />
+            <p className="font-bold text-on-surface">No Courses in this Semester</p>
+            <p className="text-xs text-on-surface-variant max-w-sm mx-auto">
+              Add your first course (e.g. Operating Systems, Computer Networks) to begin tracking your syllabus.
+            </p>
+            <Button variant="filled" size="sm" onClick={() => setIsSubjectModalOpen(true)}>
+              + Create Course
+            </Button>
+          </div>
         )}
 
-        {/* Subject Carousel Pills */}
-        <section className="space-y-2">
-          <h3 className="text-xs font-extrabold uppercase tracking-wider text-on-surface-variant px-1 font-mono">
-            Enrolled Subjects ({subjects.length})
-          </h3>
-          <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5">
-            {subjects.map((subj) => {
-              const isSelected = selectedSubject?.id === subj.id;
-              const docCount = subjectDocCounts.get(subj.id) || 0;
-              return (
-                <motion.div
+        {/* Distinct Course Cards Cluster */}
+        {subjects.length > 0 && (
+          <section className="space-y-2">
+            <div className="flex items-center justify-between px-1">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-on-surface-variant font-mono">
+                Enrolled Courses ({subjects.length})
+              </h3>
+              <button
+                onClick={() => setIsSubjectModalOpen(true)}
+                className="text-xs font-bold text-primary hover:underline cursor-pointer"
+              >
+                + Add Course
+              </button>
+            </div>
+            <div className="grid grid-cols-2 gap-2.5">
+              {subjects.map((subj) => (
+                <SubjectCard
                   key={subj.id}
-                  whileTap={motionPreset.tapFeedback.whileTap}
-                  transition={motionPreset.tapFeedback.transition}
+                  id={subj.id}
+                  name={subj.name}
+                  color={subj.color}
+                  topicCount={subjectTopicCounts.get(subj.id) || 0}
+                  docCount={subjectDocCounts.get(subj.id) || 0}
                   onClick={() => setSelectedSubject(subj)}
-                  className={`p-3.5 rounded-[22px] cursor-pointer flex flex-col justify-between min-h-[96px] transition-all ${
-                    isSelected
-                      ? 'bg-primary-container text-on-primary-container shadow-md'
-                      : 'bg-surface-container text-on-surface hover:bg-surface-container-high'
+                  className={selectedSubject?.id === subj.id ? 'ring-2 ring-primary' : ''}
+                />
+              ))}
+            </div>
+          </section>
+        )}
+
+        {/* Course Documents & Resources with Filters */}
+        {selectedSubject && (
+          <section className="space-y-3 pt-1">
+            <div className="flex items-center justify-between px-1">
+              <h3 className="text-xs font-extrabold uppercase tracking-wider text-on-surface-variant font-mono">
+                {selectedSubject.name} &bull; Course Documents ({filteredDocs.length})
+              </h3>
+
+              {/* Filter Pills */}
+              <div className="flex items-center gap-1 bg-surface-container p-1 rounded-full text-[11px] font-bold">
+                <button
+                  onClick={() => setFilterType('all')}
+                  className={`px-2.5 py-1 rounded-full transition-all cursor-pointer ${
+                    filterType === 'all' ? 'bg-primary text-on-primary' : 'text-on-surface-variant'
                   }`}
                 >
-                  <div className="flex items-center justify-between">
-                    <ShapeBadge
-                      shape="squircle"
-                      size={32}
-                      shapeFill={isSelected ? 'rgba(255, 255, 255, 0.2)' : 'rgba(255, 255, 255, 0.06)'}
-                      icon={<BookOpen className="w-4 h-4" style={{ color: subj.color || '#d0bcff' }} />}
-                    />
-                    <span className="text-[10px] font-mono font-bold opacity-75">
-                      {docCount} docs
-                    </span>
-                  </div>
+                  All
+                </button>
+                <button
+                  onClick={() => setFilterType('pdf')}
+                  className={`px-2.5 py-1 rounded-full transition-all cursor-pointer ${
+                    filterType === 'pdf' ? 'bg-primary text-on-primary' : 'text-on-surface-variant'
+                  }`}
+                >
+                  PDFs
+                </button>
+                <button
+                  onClick={() => setFilterType('note')}
+                  className={`px-2.5 py-1 rounded-full transition-all cursor-pointer ${
+                    filterType === 'note' ? 'bg-primary text-on-primary' : 'text-on-surface-variant'
+                  }`}
+                >
+                  Notes
+                </button>
+              </div>
+            </div>
 
-                  <div className="pt-2">
-                    <h4 className="text-xs font-bold truncate">
-                      {subj.name}
-                    </h4>
-                    <p className="text-[10px] opacity-70">
-                      4 topics active
-                    </p>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </section>
+            {filteredDocs.length === 0 ? (
+              <div className="p-6 text-center bg-surface-container rounded-2xl space-y-2">
+                <p className="text-xs text-on-surface-variant">
+                  No documents attached yet to this course.
+                </p>
+                <div className="flex justify-center gap-2">
+                  <button
+                    onClick={handleUploadPdfClick}
+                    className="px-3 py-1.5 rounded-xl bg-primary text-on-primary text-xs font-bold cursor-pointer"
+                  >
+                    Upload PDF
+                  </button>
+                  <button
+                    onClick={() => setIsDocModalOpen(true)}
+                    className="px-3 py-1.5 rounded-xl bg-surface-container-high text-on-surface text-xs font-bold cursor-pointer"
+                  >
+                    New Note
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                {filteredDocs.map((doc) => (
+                  <DocumentCard
+                    key={doc.id}
+                    id={doc.id}
+                    kind={doc.kind as any}
+                    title={doc.title}
+                    subjectName={selectedSubject.name}
+                    subjectColor={selectedSubject.color}
+                    pageCount={doc.pageCount}
+                    isStarred={doc.starred}
+                    onClick={() => onOpenDocument && onOpenDocument(doc.id)}
+                  />
+                ))}
+              </div>
+            )}
+          </section>
+        )}
 
-        {/* Hierarchical Syllabus Tree */}
+        {/* Hierarchical Syllabus Topics */}
         {selectedSubject && (
           <section className="space-y-2 pt-1">
             <div className="flex items-center justify-between px-1">
               <h3 className="text-xs font-extrabold uppercase tracking-wider text-on-surface-variant font-mono">
-                {selectedSubject.name} &bull; Syllabus Nodes
+                Syllabus Topics ({topics.length})
               </h3>
-              <span className="text-xs text-primary font-bold">
-                {topics.length} Chapters
-              </span>
+              <button
+                onClick={() => setIsTopicModalOpen(true)}
+                className="text-xs font-bold text-primary hover:underline cursor-pointer"
+              >
+                + Add Topic
+              </button>
             </div>
 
             <div className="space-y-2">
               {topics.length === 0 ? (
-                <div className="p-8 text-center bg-surface-container rounded-3xl space-y-1">
-                  <p className="text-sm font-bold text-on-surface">No topics defined yet</p>
+                <div className="p-6 text-center bg-surface-container rounded-2xl space-y-1">
                   <p className="text-xs text-on-surface-variant">
-                    Use the quick + button to create notes or attach syllabus topics.
+                    No syllabus topics defined for this course.
                   </p>
                 </div>
               ) : (
@@ -271,9 +511,9 @@ export const ShelfScreen: React.FC<ShelfScreenProps> = ({
                     key={top.id}
                     title={`${idx + 1}. ${top.name}`}
                     flashcardCount={4}
-                    dueCards={idx === 0 ? 2 : 0}
-                    masteryPercent={idx === 0 ? 45 : 80}
-                    isComplete={idx > 1}
+                    dueCards={0}
+                    masteryPercent={top.mastery || 0}
+                    isComplete={top.mastery >= 75}
                     onClick={() => onOpenTopic && onOpenTopic(top.id)}
                   />
                 ))
@@ -282,6 +522,184 @@ export const ShelfScreen: React.FC<ShelfScreenProps> = ({
           </section>
         )}
       </main>
+
+      {/* Create Semester Modal */}
+      <SheetCard
+        isOpen={isSemesterModalOpen}
+        onClose={() => setIsSemesterModalOpen(false)}
+        title="Create New Semester"
+        subtitle="Organize courses by academic term"
+      >
+        <div className="space-y-4 py-2">
+          <input
+            type="text"
+            value={newSemesterName}
+            onChange={(e) => setNewSemesterName(e.target.value)}
+            placeholder="e.g. Semester 2 (Spring), Year 3"
+            className="w-full px-4 py-3 rounded-2xl bg-surface-container-high text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            autoFocus
+          />
+          <Button
+            variant="filled"
+            fullWidth
+            onClick={handleCreateSemester}
+            disabled={!newSemesterName.trim()}
+          >
+            Create Semester
+          </Button>
+        </div>
+      </SheetCard>
+
+      {/* Create Subject Modal */}
+      <SheetCard
+        isOpen={isSubjectModalOpen}
+        onClose={() => setIsSubjectModalOpen(false)}
+        title="Add New Course"
+        subtitle="Attach to the active semester"
+      >
+        <div className="space-y-4 py-2">
+          <input
+            type="text"
+            value={newSubjectName}
+            onChange={(e) => setNewSubjectName(e.target.value)}
+            placeholder="e.g. Operating Systems, Machine Learning"
+            className="w-full px-4 py-3 rounded-2xl bg-surface-container-high text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            autoFocus
+          />
+
+          <div className="space-y-1">
+            <label className="text-xs font-bold text-on-surface-variant">Course Accent Color</label>
+            <div className="flex gap-2">
+              {['#d0bcff', '#f5b041', '#7cd992', '#efb8c8', '#70b8ff'].map((c) => (
+                <button
+                  key={c}
+                  type="button"
+                  onClick={() => setNewSubjectColor(c)}
+                  className="w-8 h-8 rounded-full flex items-center justify-center cursor-pointer shadow-sm"
+                  style={{ backgroundColor: c }}
+                >
+                  {newSubjectColor === c && <Check className="w-4 h-4 text-black stroke-[3px]" />}
+                </button>
+              ))}
+            </div>
+          </div>
+
+          <Button
+            variant="filled"
+            fullWidth
+            onClick={handleCreateSubject}
+            disabled={!newSubjectName.trim()}
+          >
+            Add Course
+          </Button>
+        </div>
+      </SheetCard>
+
+      {/* Create Topic Modal */}
+      <SheetCard
+        isOpen={isTopicModalOpen}
+        onClose={() => setIsTopicModalOpen(false)}
+        title="Add Syllabus Topic"
+        subtitle={`To ${selectedSubject?.name || 'course'}`}
+      >
+        <div className="space-y-4 py-2">
+          <input
+            type="text"
+            value={newTopicName}
+            onChange={(e) => setNewTopicName(e.target.value)}
+            placeholder="e.g. Page Replacement Algorithms, TCP Sockets"
+            className="w-full px-4 py-3 rounded-2xl bg-surface-container-high text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            autoFocus
+          />
+          <Button
+            variant="filled"
+            fullWidth
+            onClick={handleCreateTopic}
+            disabled={!newTopicName.trim()}
+          >
+            Add Topic Node
+          </Button>
+        </div>
+      </SheetCard>
+
+      {/* Add Document/Note Modal */}
+      <SheetCard
+        isOpen={isDocModalOpen}
+        onClose={() => setIsDocModalOpen(false)}
+        title="Add to Course"
+        subtitle={`Attaching to ${selectedSubject?.name || 'Course'}`}
+      >
+        <div className="space-y-3.5 py-2">
+          <div className="flex p-1 rounded-full bg-surface-container-highest">
+            <button
+              type="button"
+              onClick={() => setDocModalTab('note')}
+              className={`flex-1 py-1.5 rounded-full text-xs font-bold transition-all ${
+                docModalTab === 'note' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant'
+              }`}
+            >
+              Study Note
+            </button>
+            <button
+              type="button"
+              onClick={() => setDocModalTab('link')}
+              className={`flex-1 py-1.5 rounded-full text-xs font-bold transition-all ${
+                docModalTab === 'link' ? 'bg-primary text-on-primary shadow-sm' : 'text-on-surface-variant'
+              }`}
+            >
+              Resource Link
+            </button>
+          </div>
+
+          <input
+            type="text"
+            value={newDocTitle}
+            onChange={(e) => setNewDocTitle(e.target.value)}
+            placeholder="Document title..."
+            className="w-full px-4 py-2.5 rounded-xl bg-surface-container-highest text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+            autoFocus
+          />
+
+          {docModalTab === 'link' && (
+            <input
+              type="url"
+              value={newDocUrl}
+              onChange={(e) => setNewDocUrl(e.target.value)}
+              placeholder="https://..."
+              className="w-full px-4 py-2.5 rounded-xl bg-surface-container-highest text-on-surface text-xs font-mono focus:outline-none focus:ring-2 focus:ring-primary"
+            />
+          )}
+
+          <textarea
+            value={newDocBody}
+            onChange={(e) => setNewDocBody(e.target.value)}
+            placeholder={docModalTab === 'note' ? 'Type markdown notes, formulas...' : 'Why this link was saved...'}
+            rows={4}
+            className="w-full px-4 py-2.5 rounded-xl bg-surface-container-highest text-on-surface text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+          />
+
+          <Button
+            variant="filled"
+            fullWidth
+            onClick={handleSaveDocument}
+            disabled={!newDocTitle.trim() || (docModalTab === 'link' && !newDocUrl.trim())}
+          >
+            Save to {selectedSubject?.name || 'Course'}
+          </Button>
+        </div>
+      </SheetCard>
+
+      {/* Uploading indicator */}
+      <SheetCard
+        isOpen={isUploadingPdf}
+        onClose={() => {}}
+        title="Processing PDF"
+      >
+        <div className="py-6 flex flex-col items-center justify-center gap-3 text-center">
+          <LoadingIndicator size={48} />
+          <p className="text-xs text-on-surface-variant font-mono">{uploadStatus}</p>
+        </div>
+      </SheetCard>
     </div>
   );
 };
