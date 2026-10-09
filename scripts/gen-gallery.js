@@ -1,4 +1,6 @@
-import React, { useState, useEffect } from 'react';
+﻿import fs from 'fs';
+
+const code = `import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import {
   ArrowLeft, Check, Zap, Palette, Shapes, Type, Activity,
@@ -96,7 +98,7 @@ export const DevGalleryScreen: React.FC = () => {
             <p className="m3-label-medium text-on-surface-variant">Components & Token Bench</p>
           </div>
         </div>
-        <button onClick={() => setPerformanceMode(!performanceMode)} className={`px-3 py-1.5 rounded-full flex items-center gap-1.5 m3-label-medium ${performanceMode ? 'bg-amber-500/20 text-amber-300' : 'bg-surface-container text-on-surface-variant'}`}>
+        <button onClick={() => setPerformanceMode(!performanceMode)} className={\`px-3 py-1.5 rounded-full flex items-center gap-1.5 m3-label-medium \${performanceMode ? 'bg-amber-500/20 text-amber-300' : 'bg-surface-container text-on-surface-variant'}\`}>
           <Zap className="w-3.5 h-3.5" /> {performanceMode ? 'Perf: ON' : 'Perf: OFF'}
         </button>
       </header>
@@ -109,7 +111,7 @@ export const DevGalleryScreen: React.FC = () => {
           { id: 'typography', label: 'Typography', icon: Type },
           { id: 'motion', label: 'Motion', icon: Activity },
         ].map(tab => (
-          <button key={tab.id} onClick={() => setActiveTab(tab.id as Tab)} className={`px-4 py-2 rounded-xl m3-label-large flex items-center gap-2 ${activeTab === tab.id ? 'bg-primary-container text-on-primary-container font-semibold' : 'text-on-surface-variant'}`}>
+          <button key={tab.id} onClick={() => setActiveTab(tab.id as Tab)} className={\`px-4 py-2 rounded-xl m3-label-large flex items-center gap-2 \${activeTab === tab.id ? 'bg-primary-container text-on-primary-container font-semibold' : 'text-on-surface-variant'}\`}>
             <tab.icon className="w-4 h-4" /> {tab.label}
           </button>
         ))}
@@ -206,12 +208,12 @@ export const DevGalleryScreen: React.FC = () => {
               <h2 className="m3-title-medium-emp">Seed Presets & Theme Mode</h2>
               <div className="flex items-center bg-surface-container-lowest p-1 rounded-full w-fit">
                 {(['light', 'dark', 'system'] as ThemeMode[]).map(mode => (
-                  <button key={mode} onClick={() => setThemeMode(mode)} className={`px-3 py-1 rounded-full m3-label-medium capitalize ${themeMode === mode ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant'}`}>{mode}</button>
+                  <button key={mode} onClick={() => setThemeMode(mode)} className={\`px-3 py-1 rounded-full m3-label-medium capitalize \${themeMode === mode ? 'bg-primary text-on-primary font-bold' : 'text-on-surface-variant'}\`}>{mode}</button>
                 ))}
               </div>
               <div className="grid grid-cols-4 sm:grid-cols-8 gap-2">
                 {SEED_PRESETS.map(preset => (
-                  <button key={preset.id} onClick={() => setSeedColor(preset.hex)} className={`flex flex-col items-center p-2 rounded-xl ${seedColor.toLowerCase() === preset.hex.toLowerCase() ? 'bg-surface-container-highest ring-2 ring-primary' : 'bg-surface-container-low'}`}>
+                  <button key={preset.id} onClick={() => setSeedColor(preset.hex)} className={\`flex flex-col items-center p-2 rounded-xl \${seedColor.toLowerCase() === preset.hex.toLowerCase() ? 'bg-surface-container-highest ring-2 ring-primary' : 'bg-surface-container-low'}\`}>
                     <Shape name={preset.shapeName as ShapeName} size={32} fill={preset.hex} />
                     <span className="m3-label-medium text-[10px] mt-1">{preset.name}</span>
                   </button>
@@ -270,7 +272,7 @@ export const DevGalleryScreen: React.FC = () => {
             <h2 className="m3-title-medium-emp">M3 Spatial Spring Test Bench</h2>
             <div className="flex flex-wrap justify-center gap-2">
               {(Object.keys(spring) as (keyof typeof spring)[]).map(k => (
-                <button key={k} onClick={() => { setActiveMotionType(k); setMotionBoxKey(b => b + 1); }} className={`px-3 py-1 rounded-full m3-label-medium ${activeMotionType === k ? 'bg-primary text-on-primary font-bold' : 'bg-surface-container-high'}`}>{k}</button>
+                <button key={k} onClick={() => { setActiveMotionType(k); setMotionBoxKey(b => b + 1); }} className={\`px-3 py-1 rounded-full m3-label-medium \${activeMotionType === k ? 'bg-primary text-on-primary font-bold' : 'bg-surface-container-high'}\`}>{k}</button>
               ))}
             </div>
             <div className="h-28 flex items-center justify-center">
@@ -292,3 +294,7 @@ export const DevGalleryScreen: React.FC = () => {
     </div>
   );
 };
+`;
+
+fs.writeFileSync('src/features/dev/DevGalleryScreen.tsx', code, 'utf8');
+console.log('Successfully updated DevGalleryScreen.tsx');
