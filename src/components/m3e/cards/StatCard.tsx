@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { ShapeBadge } from '../ShapeBadge';
 import { ShapeName } from '../../../theme/shapes';
@@ -30,24 +30,28 @@ export const StatCard: React.FC<StatCardProps> = ({
 
   const variantStyles = {
     secondary: {
-      bg: 'bg-secondary-container text-on-secondary-container',
-      shapeFill: 'rgba(0, 0, 0, 0.12)',
-      iconColor: 'text-on-secondary-container',
+      bg: 'bg-secondary-container/80 text-on-secondary-container',
+      shapeFill: 'rgba(204, 194, 220, 0.15)',
+      iconColor: 'text-secondary',
+      glow: 'rgba(204, 194, 220, 0.2)',
     },
     tertiary: {
-      bg: 'bg-tertiary-container text-on-tertiary-container',
-      shapeFill: 'rgba(0, 0, 0, 0.12)',
-      iconColor: 'text-on-tertiary-container',
+      bg: 'bg-tertiary-container/80 text-on-tertiary-container',
+      shapeFill: 'rgba(239, 184, 200, 0.15)',
+      iconColor: 'text-tertiary',
+      glow: 'rgba(239, 184, 200, 0.2)',
     },
     primary: {
-      bg: 'bg-primary-container text-on-primary-container',
-      shapeFill: 'rgba(0, 0, 0, 0.12)',
-      iconColor: 'text-on-primary-container',
+      bg: 'bg-primary-container/80 text-on-primary-container',
+      shapeFill: 'rgba(208, 188, 255, 0.15)',
+      iconColor: 'text-primary',
+      glow: 'rgba(208, 188, 255, 0.2)',
     },
     surface: {
-      bg: 'bg-surface-container-high text-on-surface',
-      shapeFill: 'var(--md-sys-color-surface-container-highest)',
+      bg: 'bg-surface-container-high/90 text-on-surface',
+      shapeFill: 'rgba(255, 255, 255, 0.08)',
       iconColor: 'text-primary',
+      glow: 'rgba(208, 188, 255, 0.1)',
     },
   }[variant];
 
@@ -56,37 +60,31 @@ export const StatCard: React.FC<StatCardProps> = ({
       whileTap={onClick ? motionPreset.tapFeedback.whileTap : undefined}
       transition={motionPreset.tapFeedback.transition}
       onClick={onClick}
-      style={{
-        borderTopLeftRadius: '28px',
-        borderTopRightRadius: '12px',
-        borderBottomRightRadius: '20px',
-        borderBottomLeftRadius: '12px',
-      }}
-      className={`p-4 ${variantStyles.bg} border border-outline-variant/30 flex flex-col justify-between min-h-[110px] select-none shadow-sm ${
-        onClick ? 'cursor-pointer' : ''
+      className={`p-4 rounded-[24px] ${variantStyles.bg} border border-white/10 flex flex-col justify-between min-h-[114px] select-none shadow-md backdrop-blur-md ${
+        onClick ? 'cursor-pointer hover:border-white/20 transition-all' : ''
       } ${className}`}
     >
-      {/* Icon Badge & Top Label */}
       <div className="flex items-center justify-between">
         <ShapeBadge
           shape={shape}
           size={38}
           shapeFill={variantStyles.shapeFill}
+          glow
+          glowColor={variantStyles.glow}
           icon={<Icon className={`w-4 h-4 ${variantStyles.iconColor} stroke-[2.2px]`} />}
         />
         {sublabel && (
-          <span className="m3-label-medium text-[10px] uppercase font-mono font-bold opacity-80">
+          <span className="text-[10px] uppercase font-mono font-bold text-on-surface-variant/80 tracking-wider">
             {sublabel}
           </span>
         )}
       </div>
 
-      {/* Big Number & Label */}
       <div className="pt-2">
-        <div className="m3-headline-large-emp tracking-tight leading-none">
+        <div className="text-2xl font-extrabold tracking-tight leading-none text-on-surface">
           {value}
         </div>
-        <p className="m3-label-medium text-xs font-medium pt-1 opacity-90 truncate">
+        <p className="text-xs font-medium pt-1 text-on-surface-variant truncate">
           {label}
         </p>
       </div>

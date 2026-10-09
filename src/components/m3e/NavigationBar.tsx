@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
 import {
@@ -39,17 +39,17 @@ export const NavigationBar: React.FC = () => {
     { path: '/quiz', label: 'Quiz', icon: Layers, badgeCount: dueCount },
   ];
 
-  if (location.pathname.startsWith('/reader/')) {
+  if (location.pathname.startsWith('/reader/') || location.pathname.startsWith('/dev/')) {
     return null;
   }
 
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 bg-surface-container border-t border-outline-variant/30 px-2 pt-1 pb-safe-bottom"
+      className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-safe-bottom select-none pointer-events-none"
       role="navigation"
       aria-label="Main Navigation"
     >
-      <div className="flex items-center justify-around max-w-lg mx-auto h-16">
+      <div className="max-w-md mx-auto mb-2 p-1.5 rounded-full m3-glass-elevated border border-white/10 shadow-2xl pointer-events-auto flex items-center justify-around">
         {destinations.map((dest) => {
           const isActive =
             dest.path === '/'
@@ -61,43 +61,43 @@ export const NavigationBar: React.FC = () => {
             <button
               key={dest.path}
               onClick={() => navigate(dest.path)}
-              className="flex-1 flex flex-col items-center justify-center gap-1 py-1 relative select-none group"
+              className="relative flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full transition-all group focus:outline-none"
               aria-label={dest.label}
             >
-              <div className="relative flex items-center justify-center w-16 h-8 rounded-full">
-                {isActive && (
-                  <motion.div
-                    layoutId="m3e-nav-indicator"
-                    className="absolute inset-0 bg-secondary-container rounded-full"
-                    transition={motionPreset.spatialDefault}
-                  />
-                )}
+              {isActive && (
+                <motion.div
+                  layoutId="m3e-nav-pill-active"
+                  className="absolute inset-0 bg-primary/15 border border-primary/30 rounded-full shadow-sm"
+                  transition={motionPreset.spatialDefault}
+                />
+              )}
 
-                <div className="relative z-10 flex items-center justify-center">
+              <div className="relative z-10 flex flex-col items-center gap-0.5">
+                <div className="relative flex items-center justify-center">
                   <Icon
-                    className={`w-5 h-5 transition-colors ${
+                    className={'w-5 h-5 transition-transform duration-200 group-active:scale-90 ' + (
                       isActive
-                        ? 'text-on-secondary-container stroke-[2.4px]'
+                        ? 'text-primary stroke-[2.4px]'
                         : 'text-on-surface-variant group-hover:text-on-surface stroke-[1.8px]'
-                    }`}
+                    )}
                   />
                   {dest.badgeCount && dest.badgeCount > 0 ? (
-                    <span className="absolute -top-1 -right-2 px-1.5 py-0.2 min-w-[16px] h-4 rounded-full bg-error text-on-error text-[10px] font-bold font-mono flex items-center justify-center shadow-sm">
+                    <span className="absolute -top-1 -right-2.5 px-1 min-w-[15px] h-3.5 rounded-full bg-error text-on-error text-[9px] font-bold font-mono flex items-center justify-center shadow-md animate-pulse">
                       {dest.badgeCount > 99 ? '99+' : dest.badgeCount}
                     </span>
                   ) : null}
                 </div>
-              </div>
 
-              <span
-                className={`m3-label-medium text-[11px] transition-colors truncate max-w-[64px] ${
-                  isActive
-                    ? 'font-bold text-on-surface'
-                    : 'font-medium text-on-surface-variant group-hover:text-on-surface'
-                }`}
-              >
-                {dest.label}
-              </span>
+                <span
+                  className={'text-[10px] font-bold tracking-tight transition-colors truncate max-w-[56px] ' + (
+                    isActive
+                      ? 'text-primary'
+                      : 'text-on-surface-variant/80 group-hover:text-on-surface'
+                  )}
+                >
+                  {dest.label}
+                </span>
+              </div>
             </button>
           );
         })}

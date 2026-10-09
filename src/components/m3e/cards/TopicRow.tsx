@@ -1,63 +1,63 @@
-﻿import React from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { ChevronRight } from 'lucide-react';
-import { ScallopRing } from '../ScallopRing';
 import { useMotionPreset } from '../../../theme/motion';
+import { CheckCircle, Circle, ChevronRight } from 'lucide-react';
 
 export interface TopicRowProps {
-  name: string;
-  itemCount: number;
+  id?: string;
+  title?: string;
+  name?: string;
+  masteryPercent?: number;
+  isComplete?: boolean;
+  flashcardCount?: number;
+  itemCount?: number;
   dueCards?: number;
-  masteryPercent: number;
-  onClick: () => void;
+  onClick?: () => void;
   className?: string;
 }
 
 export const TopicRow: React.FC<TopicRowProps> = ({
+  title,
   name,
+  masteryPercent = 0,
+  isComplete = false,
+  flashcardCount,
   itemCount,
-  dueCards = 0,
-  masteryPercent,
+  dueCards,
   onClick,
   className = '',
 }) => {
   const motionPreset = useMotionPreset();
+  const displayTitle = title || name || 'Untitled Topic';
+  const totalCards = flashcardCount !== undefined ? flashcardCount : (itemCount || 0);
 
   return (
     <motion.div
-      whileTap={motionPreset.tapFeedback.whileTap}
+      whileTap={onClick ? motionPreset.tapFeedback.whileTap : undefined}
       transition={motionPreset.tapFeedback.transition}
       onClick={onClick}
-      className={`p-3.5 rounded-2xl bg-surface-container hover:bg-surface-container-high transition-colors flex items-center justify-between gap-3 border border-outline-variant/30 cursor-pointer select-none ${className}`}
+      className={`p-3.5 rounded-[18px] bg-surface-container/70 border border-white/5 m3-glass flex items-center justify-between gap-3 cursor-pointer hover:bg-surface-container-high transition-all ${className}`}
     >
       <div className="flex items-center gap-3 min-w-0 flex-1">
-        {/* Leading Mastery Ring */}
-        <ScallopRing
-          progress={masteryPercent}
-          size={40}
-          strokeWidth={3.5}
-        />
+        {isComplete ? (
+          <CheckCircle className="w-5 h-5 text-emerald-400 shrink-0" />
+        ) : (
+          <Circle className="w-5 h-5 text-on-surface-variant/40 shrink-0" />
+        )}
 
-        {/* Name & Item Count */}
-        <div className="min-w-0 flex-1 space-y-0.5">
-          <h4 className="m3-title-medium-emp text-on-surface truncate">
-            {name}
+        <div className="min-w-0 flex-1">
+          <h4 className="text-sm font-bold text-on-surface truncate leading-tight">
+            {displayTitle}
           </h4>
-          <p className="m3-label-medium text-on-surface-variant text-xs">
-            {itemCount} Resources &bull; {Math.round(masteryPercent)}% Mastery
+          <p className="text-[11px] text-on-surface-variant font-medium pt-0.5">
+            {totalCards} cards
+            {dueCards !== undefined && dueCards > 0 && ` (${dueCards} due)`}
+            {` • ${masteryPercent}% recall`}
           </p>
         </div>
       </div>
 
-      {/* Due Badge & Chevron */}
-      <div className="flex items-center gap-2 shrink-0">
-        {dueCards > 0 && (
-          <span className="px-2 py-0.5 rounded-full bg-error text-on-error font-mono text-[10px] font-bold shadow-sm">
-            {dueCards} Due
-          </span>
-        )}
-        <ChevronRight className="w-4 h-4 text-on-surface-variant" />
-      </div>
+      <ChevronRight className="w-4 h-4 text-on-surface-variant/50 shrink-0" />
     </motion.div>
   );
 };

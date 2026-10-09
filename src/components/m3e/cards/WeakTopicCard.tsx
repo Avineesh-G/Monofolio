@@ -1,13 +1,16 @@
-﻿import React from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { AlertCircle, CheckCircle2, TrendingUp } from 'lucide-react';
+import { AlertCircle, ArrowRight } from 'lucide-react';
 import { useMotionPreset } from '../../../theme/motion';
+import { ShapeBadge } from '../ShapeBadge';
 
 export interface WeakTopicCardProps {
   topicName: string;
   subjectName?: string;
-  masteryPercent: number;
+  failedCount?: number;
+  masteryPercent?: number;
   weakPointsCount?: number;
+  onReview?: () => void;
   onClick?: () => void;
   className?: string;
 }
@@ -15,60 +18,65 @@ export interface WeakTopicCardProps {
 export const WeakTopicCard: React.FC<WeakTopicCardProps> = ({
   topicName,
   subjectName,
+  failedCount = 3,
   masteryPercent,
   weakPointsCount,
+  onReview,
   onClick,
   className = '',
 }) => {
   const motionPreset = useMotionPreset();
-
-  const isWeak = masteryPercent < 60;
-  const isModerate = masteryPercent >= 60 && masteryPercent < 80;
-
-  const bgStyle = isWeak
-    ? 'bg-error-container text-on-error-container border-rose-500/30'
-    : isModerate
-    ? 'bg-tertiary-container text-on-tertiary-container border-amber-500/30'
-    : 'bg-primary-container text-on-primary-container border-primary/30';
+  const handleAction = onReview || onClick || (() => {});
 
   return (
     <motion.div
-      whileTap={onClick ? motionPreset.tapFeedback.whileTap : undefined}
+      whileTap={motionPreset.tapFeedback.whileTap}
       transition={motionPreset.tapFeedback.transition}
-      onClick={onClick}
-      className={`p-4 rounded-3xl border ${bgStyle} flex flex-col justify-between min-h-[110px] select-none shadow-sm ${
-        onClick ? 'cursor-pointer hover:opacity-95' : ''
-      } ${className}`}
+      onClick={handleAction}
+      className={`p-4 rounded-[24px] bg-error-container/40 border border-error/30 backdrop-blur-md shadow-sm flex items-center justify-between gap-3 cursor-pointer select-none hover:border-error/60 transition-all ${className}`}
     >
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-1.5">
-          {isWeak ? (
-            <AlertCircle className="w-4 h-4 text-error" />
-          ) : isModerate ? (
-            <TrendingUp className="w-4 h-4 text-tertiary" />
-          ) : (
-            <CheckCircle2 className="w-4 h-4 text-primary" />
-          )}
-          <span className="m3-label-medium text-[11px] font-bold uppercase tracking-wider opacity-90 truncate">
-            {subjectName || 'Topic Mastery'}
-          </span>
-        </div>
+      <div className="flex items-center gap-3 min-w-0 flex-1">
+        <ShapeBadge
+          shape="softBurst"
+          size={40}
+          shapeFill="rgba(242, 184, 181, 0.2)"
+          glow
+          glowColor="rgba(242, 184, 181, 0.3)"
+          icon={<AlertCircle className="w-4 h-4 text-error stroke-[2.2px]" />}
+        />
 
-        <span className="m3-headline-medium-emp font-mono font-bold leading-none">
-          {Math.round(masteryPercent)}%
-        </span>
-      </div>
+        <div className="min-w-0 flex-1 space-y-0.5">
+          <div className="flex items-center gap-2">
+            <span className="text-[10px] font-mono uppercase font-bold text-error tracking-wider">
+              RETENTION ALERT
+            </span>
+            {subjectName && (
+              <span className="text-[10px] text-on-surface-variant font-medium">
+                • {subjectName}
+              </span>
+            )}
+          </div>
 
-      <div className="pt-2 space-y-0.5">
-        <h4 className="m3-title-medium-emp truncate leading-tight">
-          {topicName}
-        </h4>
-        {weakPointsCount !== undefined && weakPointsCount > 0 && (
-          <p className="m3-label-medium text-xs opacity-80">
-            {weakPointsCount} identified blind spots
+          <h4 className="text-sm font-bold text-on-surface truncate leading-tight">
+            {topicName}
+          </h4>
+
+          <p className="text-xs text-on-surface-variant">
+            {masteryPercent !== undefined
+              ? `Mastery at ${masteryPercent}% (${weakPointsCount || 3} concepts unstable)`
+              : `${failedCount} cards in Leitner Box 0 needing review.`}
           </p>
-        )}
+        </div>
       </div>
+
+      <button
+        type="button"
+        onClick={handleAction}
+        className="px-3 py-1.5 rounded-full bg-error text-on-error text-xs font-bold shrink-0 flex items-center gap-1 shadow-sm action:scale-95 transition-transform"
+      >
+        <span>Review</span>
+        <ArrowRight className="w-3.5 h-3.5" />
+      </button>
     </motion.div>
   );
 };

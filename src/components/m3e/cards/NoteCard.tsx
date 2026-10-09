@@ -1,24 +1,24 @@
-﻿import React from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
+import { ShapeBadge } from '../ShapeBadge';
 import { useMotionPreset } from '../../../theme/motion';
+import { StickyNote } from 'lucide-react';
 
 export interface NoteCardProps {
   id: string;
   title: string;
-  bodyPreview: string;
-  lastEditedText?: string;
+  snippet?: string;
   subjectName?: string;
-  subjectColor?: string;
+  updatedAt?: string | number;
   onClick: () => void;
   className?: string;
 }
 
 export const NoteCard: React.FC<NoteCardProps> = ({
   title,
-  bodyPreview,
-  lastEditedText = 'Recently',
+  snippet,
   subjectName,
-  subjectColor = 'var(--md-sys-color-primary)',
+  updatedAt,
   onClick,
   className = '',
 }) => {
@@ -29,33 +29,40 @@ export const NoteCard: React.FC<NoteCardProps> = ({
       whileTap={motionPreset.tapFeedback.whileTap}
       transition={motionPreset.tapFeedback.transition}
       onClick={onClick}
-      className={`relative p-4 rounded-3xl bg-surface-container border border-outline-variant/30 overflow-hidden cursor-pointer hover:bg-surface-container-high transition-colors select-none shadow-sm space-y-2.5 ${className}`}
+      className={`p-4 rounded-[22px] bg-surface-container/90 border border-white/10 m3-glass flex flex-col justify-between cursor-pointer shadow-sm hover:border-white/20 hover:bg-surface-container-high transition-all ${className}`}
     >
-      <div className="absolute top-0 left-0 bottom-0 w-1.5 bg-secondary" />
+      <div className="space-y-2">
+        <div className="flex items-center justify-between gap-2">
+          <div className="flex items-center gap-2.5 min-w-0 flex-1">
+            <ShapeBadge
+              shape="flower"
+              size={32}
+              shapeFill="rgba(204, 194, 220, 0.2)"
+              icon={<StickyNote className="w-4 h-4 text-secondary stroke-[2.2px]" />}
+            />
+            <h4 className="text-sm font-bold text-on-surface truncate">
+              {title}
+            </h4>
+          </div>
+          {subjectName && (
+            <span className="px-2 py-0.5 rounded-full bg-white/10 text-[10px] font-bold text-secondary truncate max-w-[100px]">
+              {subjectName}
+            </span>
+          )}
+        </div>
 
-      <div className="flex items-center justify-between pl-1">
-        <span
-          className="px-2.5 py-0.5 rounded-full text-[10px] font-bold truncate max-w-[140px]"
-          style={{
-            backgroundColor: 'var(--md-sys-color-surface-container-highest)',
-            color: subjectColor,
-          }}
-        >
-          {subjectName || 'Study Note'}
-        </span>
-        <span className="m3-label-medium text-[11px] text-on-surface-variant font-mono">
-          {lastEditedText}
-        </span>
+        {snippet && (
+          <p className="text-xs text-on-surface-variant line-clamp-2 leading-relaxed">
+            {snippet}
+          </p>
+        )}
       </div>
 
-      <div className="pl-1 space-y-1">
-        <h4 className="m3-title-medium-emp text-on-surface line-clamp-1 leading-snug">
-          {title}
-        </h4>
-        <p className="m3-body-medium text-on-surface-variant line-clamp-3 text-xs leading-relaxed">
-          {bodyPreview || 'No content provided in this study note.'}
-        </p>
-      </div>
+      {updatedAt && (
+        <div className="pt-3 text-[10px] font-mono text-on-surface-variant/60">
+          Updated {typeof updatedAt === 'number' ? new Date(updatedAt).toLocaleDateString() : updatedAt}
+        </div>
+      )}
     </motion.div>
   );
 };

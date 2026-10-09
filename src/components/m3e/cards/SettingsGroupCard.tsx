@@ -1,81 +1,70 @@
-﻿import React from 'react';
-import { ShapeBadge } from '../ShapeBadge';
-import { ShapeName } from '../../../theme/shapes';
-import { ChevronRight, LucideIcon } from 'lucide-react';
+import React from 'react';
 
-export interface SettingsRowItem {
+export interface SettingsItem {
   id: string;
   label: string;
   subtitle?: string;
-  icon?: LucideIcon;
-  shape?: ShapeName;
-  shapeFill?: string;
+  icon?: any;
   trailing?: React.ReactNode;
   onClick?: () => void;
 }
 
 export interface SettingsGroupCardProps {
-  title?: string;
-  items: SettingsRowItem[];
+  title: string;
+  items?: SettingsItem[];
+  children?: React.ReactNode;
   className?: string;
 }
 
 export const SettingsGroupCard: React.FC<SettingsGroupCardProps> = ({
   title,
   items,
+  children,
   className = '',
 }) => {
   return (
-    <div className={`space-y-2 select-none ${className}`}>
-      {title && (
-        <h3 className="m3-label-large font-bold uppercase tracking-wider text-primary px-2 text-xs">
-          {title}
-        </h3>
-      )}
+    <div className={`rounded-[24px] bg-surface-container/80 border border-white/10 m3-glass p-4 space-y-3 shadow-md ${className}`}>
+      <h3 className="text-xs font-bold uppercase tracking-wider text-primary px-1">
+        {title}
+      </h3>
 
-      <div className="rounded-xl bg-surface-container border border-outline-variant/30 overflow-hidden divide-y divide-outline-variant/20 shadow-sm">
-        {items.map((item) => {
-          const Icon = item.icon;
-          return (
-            <div
-              key={item.id}
-              onClick={item.onClick}
-              className={`p-4 flex items-center justify-between gap-3 transition-colors ${
-                item.onClick ? 'cursor-pointer hover:bg-surface-container-high active:bg-surface-container-highest' : ''
-              }`}
-            >
-              <div className="flex items-center gap-3.5 min-w-0 flex-1">
-                {Icon && (
-                  <ShapeBadge
-                    shape={item.shape || 'squircle'}
-                    size={40}
-                    shapeFill={item.shapeFill || 'var(--md-sys-color-surface-container-highest)'}
-                    icon={<Icon className="w-4 h-4 text-primary stroke-[2.2px]" />}
-                  />
-                )}
-
-                <div className="min-w-0 flex-1 space-y-0.5">
-                  <div className="m3-title-medium-emp text-on-surface truncate text-sm">
-                    {item.label}
-                  </div>
-                  {item.subtitle && (
-                    <div className="m3-label-medium text-on-surface-variant text-xs truncate">
-                      {item.subtitle}
+      {items && items.length > 0 && (
+        <div className="divide-y divide-white/5">
+          {items.map((item) => {
+            const Icon = item.icon;
+            return (
+              <div
+                key={item.id}
+                onClick={item.onClick}
+                className={`py-3 flex items-center justify-between gap-3 ${
+                  item.onClick ? 'cursor-pointer hover:bg-white/5 px-2 rounded-xl transition-colors' : ''
+                }`}
+              >
+                <div className="flex items-center gap-3 min-w-0 flex-1">
+                  {Icon && (
+                    <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
+                      <Icon className="w-4 h-4 text-primary" />
                     </div>
                   )}
+                  <div className="min-w-0 flex-1">
+                    <h4 className="text-sm font-bold text-on-surface truncate">
+                      {item.label}
+                    </h4>
+                    {item.subtitle && (
+                      <p className="text-xs text-on-surface-variant font-medium">
+                        {item.subtitle}
+                      </p>
+                    )}
+                  </div>
                 </div>
+                {item.trailing && <div className="shrink-0">{item.trailing}</div>}
               </div>
+            );
+          })}
+        </div>
+      )}
 
-              <div className="shrink-0 flex items-center gap-2">
-                {item.trailing}
-                {item.onClick && !item.trailing && (
-                  <ChevronRight className="w-4 h-4 text-on-surface-variant" />
-                )}
-              </div>
-            </div>
-          );
-        })}
-      </div>
+      {children}
     </div>
   );
 };

@@ -1,32 +1,27 @@
-﻿import React from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
-import { WavyProgress } from '../WavyProgress';
 import { ShapeBadge } from '../ShapeBadge';
 import { ShapeName } from '../../../theme/shapes';
 import { useMotionPreset } from '../../../theme/motion';
-
-export interface SemesterSubjectBadge {
-  id: string;
-  name: string;
-  color: string;
-  shape: ShapeName;
-}
+import { Layers, ChevronRight } from 'lucide-react';
 
 export interface SemesterCardProps {
   id: string;
-  name: string;
-  subjectBadges: SemesterSubjectBadge[];
-  progressPercent: number;
-  isSelected?: boolean;
-  onClick?: () => void;
+  title: string;
+  year?: string;
+  subjectsCount?: number;
+  shape?: ShapeName;
+  isActive?: boolean;
+  onClick: () => void;
   className?: string;
 }
 
 export const SemesterCard: React.FC<SemesterCardProps> = ({
-  name,
-  subjectBadges,
-  progressPercent,
-  isSelected = false,
+  title,
+  year,
+  subjectsCount = 0,
+  shape = 'softBurst',
+  isActive = false,
   onClick,
   className = '',
 }) => {
@@ -34,56 +29,41 @@ export const SemesterCard: React.FC<SemesterCardProps> = ({
 
   return (
     <motion.div
-      whileTap={onClick ? motionPreset.tapFeedback.whileTap : undefined}
+      whileTap={motionPreset.tapFeedback.whileTap}
       transition={motionPreset.tapFeedback.transition}
       onClick={onClick}
-      className={`min-w-[260px] p-5 rounded-3xl transition-all cursor-pointer select-none border ${
-        isSelected
-          ? 'bg-primary-container text-on-primary-container border-primary shadow-md'
-          : 'bg-surface-container text-on-surface border-outline-variant/30 hover:bg-surface-container-high'
+      className={`p-4 rounded-[24px] cursor-pointer flex items-center justify-between gap-3 shadow-md transition-all ${
+        isActive
+          ? 'bg-primary-container/70 border-2 border-primary text-on-primary-container'
+          : 'bg-surface-container/90 border border-white/10 m3-glass hover:bg-surface-container-high'
       } ${className}`}
     >
-      <div className="space-y-3">
-        {/* Semester Title */}
-        <div className="flex items-center justify-between">
-          <h3 className="m3-headline-small-emp m3-title-large-emp truncate font-bold">
-            {name}
-          </h3>
-          <span className="font-mono text-xs font-bold opacity-80">
-            {Math.round(progressPercent)}%
-          </span>
-        </div>
+      <div className="flex items-center gap-3.5 min-w-0 flex-1">
+        <ShapeBadge
+          shape={shape}
+          size={44}
+          shapeFill={isActive ? 'rgba(208, 188, 255, 0.3)' : 'rgba(255, 255, 255, 0.08)'}
+          icon={<Layers className="w-5 h-5 text-primary stroke-[2.2px]" />}
+        />
 
-        {/* Overlapping Subject Badges */}
-        <div className="flex items-center -space-x-2.5 py-1">
-          {subjectBadges.slice(0, 5).map((badge) => (
-            <ShapeBadge
-              key={badge.id}
-              shape={badge.shape}
-              size={36}
-              shapeFill={badge.color}
-              className="ring-2 ring-surface shadow-sm"
-            />
-          ))}
-          {subjectBadges.length > 5 && (
-            <div className="w-9 h-9 rounded-full bg-surface-container-highest text-on-surface text-[11px] font-bold flex items-center justify-center ring-2 ring-surface z-10">
-              +{subjectBadges.length - 5}
-            </div>
-          )}
-        </div>
-
-        {/* Wavy Progress Line */}
-        <div className="pt-1">
-          <WavyProgress
-            progress={progressPercent}
-            color={
-              isSelected
-                ? 'var(--md-sys-color-primary)'
-                : 'var(--md-sys-color-secondary)'
-            }
-          />
+        <div className="min-w-0 flex-1 space-y-1">
+          <div className="flex items-center gap-2">
+            <h3 className="text-base font-bold text-on-surface truncate leading-tight">
+              {title}
+            </h3>
+            {year && (
+              <span className="px-2 py-0.5 rounded-full bg-white/10 text-[10px] font-mono text-on-surface-variant font-bold">
+                {year}
+              </span>
+            )}
+          </div>
+          <p className="text-xs text-on-surface-variant font-medium">
+            {subjectsCount} {subjectsCount === 1 ? 'subject' : 'subjects'} enrolled
+          </p>
         </div>
       </div>
+
+      <ChevronRight className="w-5 h-5 text-on-surface-variant/60 shrink-0" />
     </motion.div>
   );
 };

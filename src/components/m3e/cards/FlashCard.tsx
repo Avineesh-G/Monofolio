@@ -1,128 +1,173 @@
-﻿import React from 'react';
+import React, { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Sparkles, Layers, RotateCw } from 'lucide-react';
 import { useMotionPreset } from '../../../theme/motion';
-import { Shape } from '../../../theme/shapes';
+import { ShapeBadge } from '../ShapeBadge';
+import { ShapeName } from '../../../theme/shapes';
+import { RotateCw, Check, X, Sparkles } from 'lucide-react';
 
 export interface FlashCardProps {
-  question: string;
-  answer: string;
+  id?: string;
+  front?: string;
+  back?: string;
+  question?: string;
+  answer?: string;
+  hint?: string;
   explanation?: string;
-  isFlipped: boolean;
-  onFlip: () => void;
+  box?: number;
   boxLevel?: number;
+  isFlipped?: boolean;
+  onFlip?: () => void;
   subjectName?: string;
+  shape?: ShapeName;
+  onAnswer?: (rating: 'again' | 'hard' | 'good' | 'easy') => void;
   className?: string;
 }
 
 export const FlashCard: React.FC<FlashCardProps> = ({
+  front,
+  back,
   question,
   answer,
+  hint,
   explanation,
-  isFlipped,
+  box = 1,
+  boxLevel,
+  isFlipped: controlledFlipped,
   onFlip,
-  boxLevel = 1,
-  subjectName = 'Revision',
+  subjectName,
+  shape = 'squircle',
+  onAnswer,
   className = '',
 }) => {
+  const [internalFlipped, setInternalFlipped] = useState(false);
   const motionPreset = useMotionPreset();
 
+  const isFlipped = controlledFlipped !== undefined ? controlledFlipped : internalFlipped;
+  const cardFront = front || question || '';
+  const cardBack = back || answer || '';
+  const cardHint = hint || explanation;
+  const currentBox = boxLevel !== undefined ? boxLevel : box;
+
+  const handleFlip = () => {
+    if (onFlip) {
+      onFlip();
+    } else {
+      setInternalFlipped(!internalFlipped);
+    }
+  };
+
   return (
-    <div
-      onClick={onFlip}
-      className={`relative w-full max-w-md h-96 perspective-1000 cursor-pointer select-none ${className}`}
-    >
+    <div className={`w-full perspective-[1000px] select-none ${className}`}>
       <motion.div
         animate={{ rotateY: isFlipped ? 180 : 0 }}
         transition={motionPreset.spatialDefault}
-        className="w-full h-full relative preserve-3d"
-        style={{ transformStyle: 'preserve-3d' }}
+        className="relative w-full min-h-[300px] rounded-[32px] p-6 m3-glass-elevated border border-white/10 shadow-2xl flex flex-col justify-between cursor-pointer transform-style-3d"
+        onClick={handleFlip}
       >
-        {/* FRONT FACE */}
-        <div
-          style={{
-            backfaceVisibility: 'hidden',
-            borderTopLeftRadius: '48px',
-            borderTopRightRadius: '16px',
-            borderBottomRightRadius: '48px',
-            borderBottomLeftRadius: '16px',
-          }}
-          className="absolute inset-0 p-6 bg-surface-container-high text-on-surface border-2 border-outline-variant/40 shadow-xl flex flex-col justify-between"
-        >
-          {/* Top metadata badge */}
-          <div className="flex items-center justify-between">
-            <span className="px-3 py-1 rounded-full bg-surface-container-highest text-primary m3-label-medium font-bold flex items-center gap-1.5">
-              <Layers className="w-3.5 h-3.5" />
-              <span>Leitner Box {boxLevel}</span>
-            </span>
-            <span className="m3-label-medium text-xs text-on-surface-variant font-mono">
-              {subjectName}
-            </span>
-          </div>
-
-          {/* Question Text */}
-          <div className="py-4 text-center my-auto">
-            <span className="text-[11px] font-bold text-primary uppercase tracking-widest font-mono block mb-2">
-              QUESTION
-            </span>
-            <h3 className="m3-headline-medium-emp text-on-surface leading-snug">
-              {question}
-            </h3>
-          </div>
-
-          {/* Flip Hint */}
-          <div className="flex items-center justify-center gap-1.5 text-on-surface-variant m3-label-medium text-xs">
-            <RotateCw className="w-3.5 h-3.5 animate-pulse" />
-            <span>Tap anywhere to reveal answer</span>
-          </div>
-        </div>
-
-        {/* BACK FACE */}
-        <div
-          style={{
-            backfaceVisibility: 'hidden',
-            transform: 'rotateY(180deg)',
-            borderTopLeftRadius: '48px',
-            borderTopRightRadius: '16px',
-            borderBottomRightRadius: '48px',
-            borderBottomLeftRadius: '16px',
-          }}
-          className="absolute inset-0 p-6 bg-primary-container text-on-primary-container border-2 border-primary shadow-2xl flex flex-col justify-between overflow-hidden"
-        >
-          {/* Decorative Corner Shape */}
-          <div className="absolute -right-6 -bottom-6 opacity-15 pointer-events-none">
-            <Shape name="softBurst" size={140} fill="var(--md-sys-color-primary)" />
-          </div>
-
-          {/* Top metadata badge */}
-          <div className="relative z-10 flex items-center justify-between">
-            <span className="px-3 py-1 rounded-full bg-surface/20 text-on-primary-container m3-label-medium font-bold flex items-center gap-1.5 backdrop-blur-sm">
-              <Sparkles className="w-3.5 h-3.5 text-amber-300" />
-              <span>Key Concept</span>
-            </span>
-            <span className="m3-label-medium text-xs opacity-80 uppercase font-mono tracking-wider">
-              Answer
-            </span>
-          </div>
-
-          {/* Answer Content */}
-          <div className="relative z-10 py-2 text-center my-auto space-y-3">
-            <div className="m3-title-large-emp text-on-primary-container leading-relaxed">
-              {answer}
+        {!isFlipped ? (
+          /* Front */
+          <div className="flex flex-col justify-between h-full space-y-6">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <ShapeBadge
+                  shape={shape}
+                  size={32}
+                  shapeFill="rgba(208, 188, 255, 0.2)"
+                  icon={<Sparkles className="w-3.5 h-3.5 text-primary" />}
+                />
+                {subjectName && (
+                  <span className="text-xs font-bold text-on-surface-variant">
+                    {subjectName}
+                  </span>
+                )}
+              </div>
+              <span className="px-2.5 py-1 rounded-full bg-white/10 text-[11px] font-mono font-bold text-primary border border-white/10">
+                Box {currentBox} / 5
+              </span>
             </div>
-            {explanation && (
-              <p className="m3-body-medium text-on-primary-container/85 text-xs italic">
-                {explanation}
-              </p>
-            )}
-          </div>
 
-          {/* Flip back Hint */}
-          <div className="relative z-10 flex items-center justify-center gap-1.5 text-on-primary-container/80 m3-label-medium text-xs">
-            <RotateCw className="w-3.5 h-3.5" />
-            <span>Tap to flip back</span>
+            <div className="my-auto py-4 text-center">
+              <p className="text-xl font-bold text-on-surface tracking-tight leading-relaxed">
+                {cardFront}
+              </p>
+              {cardHint && (
+                <p className="text-xs text-on-surface-variant/70 italic mt-3">
+                  💡 Hint: {cardHint}
+                </p>
+              )}
+            </div>
+
+            <div className="flex items-center justify-center gap-2 text-xs font-bold text-on-surface-variant/80">
+              <RotateCw className="w-3.5 h-3.5" />
+              <span>Tap to flip card</span>
+            </div>
           </div>
-        </div>
+        ) : (
+          /* Back */
+          <div
+            className="flex flex-col justify-between h-full space-y-6 transform rotate-y-180"
+            onClick={(e) => e.stopPropagation()}
+          >
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-bold text-primary uppercase tracking-wider">
+                Answer
+              </span>
+              <button
+                type="button"
+                onClick={handleFlip}
+                className="p-1.5 rounded-full hover:bg-white/10 text-on-surface-variant"
+              >
+                <RotateCw className="w-4 h-4" />
+              </button>
+            </div>
+
+            <div className="my-auto py-4 text-center">
+              <p className="text-lg font-semibold text-on-surface leading-relaxed">
+                {cardBack}
+              </p>
+              {cardHint && (
+                <p className="text-xs text-on-surface-variant/70 mt-3">
+                  {cardHint}
+                </p>
+              )}
+            </div>
+
+            {onAnswer ? (
+              <div className="grid grid-cols-4 gap-2 pt-2">
+                <button
+                  type="button"
+                  onClick={() => onAnswer('again')}
+                  className="py-2.5 rounded-xl bg-error/20 text-error font-bold text-xs hover:bg-error/30 active:scale-95 transition-all flex flex-col items-center"
+                >
+                  <X className="w-4 h-4 mb-0.5" />
+                  <span>Again</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onAnswer('hard')}
+                  className="py-2.5 rounded-xl bg-amber-500/20 text-amber-300 font-bold text-xs hover:bg-amber-500/30 active:scale-95 transition-all flex flex-col items-center"
+                >
+                  <span>Hard</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onAnswer('good')}
+                  className="py-2.5 rounded-xl bg-primary/20 text-primary font-bold text-xs hover:bg-primary/30 active:scale-95 transition-all flex flex-col items-center"
+                >
+                  <Check className="w-4 h-4 mb-0.5" />
+                  <span>Good</span>
+                </button>
+                <button
+                  type="button"
+                  onClick={() => onAnswer('easy')}
+                  className="py-2.5 rounded-xl bg-emerald-500/20 text-emerald-300 font-bold text-xs hover:bg-emerald-500/30 active:scale-95 transition-all flex flex-col items-center"
+                >
+                  <span>Easy</span>
+                </button>
+              </div>
+            ) : null}
+          </div>
+        )}
       </motion.div>
     </div>
   );

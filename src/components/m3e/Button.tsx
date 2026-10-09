@@ -1,10 +1,10 @@
-﻿import React from 'react';
+import React from 'react';
 import { motion } from 'framer-motion';
 import { useMotionPreset } from '../../theme/motion';
 
 export type ButtonVariant = 'filled' | 'tonal' | 'outlined' | 'text' | 'elevated' | 'error';
 export type ButtonSize = 'xs' | 'sm' | 'md' | 'lg' | 'xl';
-export type ButtonShape = 'round' | 'square';
+export type ButtonShape = 'round' | 'square' | 'pill' | 'squircle';
 
 export interface ButtonProps extends React.ButtonHTMLAttributes<HTMLButtonElement> {
   variant?: ButtonVariant;
@@ -25,7 +25,9 @@ const SIZE_CLASSES: Record<ButtonSize, string> = {
 
 const SHAPE_CLASSES: Record<ButtonShape, string> = {
   round: 'rounded-full',
+  pill: 'rounded-full',
   square: 'rounded-2xl',
+  squircle: 'rounded-2xl',
 };
 
 const VARIANT_CLASSES: Record<ButtonVariant, string> = {

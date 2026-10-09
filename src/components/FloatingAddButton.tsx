@@ -1,4 +1,4 @@
-﻿import React, { useState, useRef } from 'react';
+import React, { useState, useRef } from 'react';
 import { SheetCard } from './m3e/SheetCard';
 import { Fab } from './m3e/Fab';
 import { Button } from './m3e/Button';
@@ -30,7 +30,7 @@ export const FloatingAddButton: React.FC = () => {
   const targetSubjectId = selectedSubjectId || (subjects.length > 0 ? subjects[0].id : '');
 
   // Handle Menu Option Selection from M3E Fab
-  const handleFabSelect = (optionId: 'pdf' | 'note' | 'link') => {
+  const handleFabSelect = (optionId: 'pdf' | 'note' | 'link' | 'coach') => {
     if (optionId === 'pdf') {
       fileInputRef.current?.click();
     } else if (optionId === 'note') {
