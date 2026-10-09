@@ -1,5 +1,4 @@
 import { Component, type ErrorInfo, type ReactNode } from 'react';
-import { LazyMotion, domAnimation } from 'framer-motion';
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -32,7 +31,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             !
           </div>
           <h2 className="text-base font-bold text-text-primary mb-1">Something went wrong</h2>
-          <p className="text-xs text-text-secondary max-w-xs mb-4">
+          <p className="text-xs text-secondary max-w-xs mb-4">
             {this.state.error?.message || 'An unexpected error occurred'}
           </p>
           <button
@@ -54,9 +53,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 export const AppProviders = ({ children }: { children: ReactNode }) => {
   return (
     <ErrorBoundary>
-      <LazyMotion features={domAnimation} strict>
-        {children}
-      </LazyMotion>
+      {children}
     </ErrorBoundary>
   );
 };
