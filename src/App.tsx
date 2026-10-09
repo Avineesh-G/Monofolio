@@ -7,8 +7,7 @@ import { Skeleton } from './components/Skeleton';
 import { useLibraryStore } from './store/useLibraryStore';
 import { useSettingsStore } from './store/useSettingsStore';
 import { useLockStore } from './store/useLockStore';
-import { startFpsMeter, stopFpsMeter } from './lib/perf';
-import { Lock, Zap } from 'lucide-react';
+import { Lock } from 'lucide-react';
 
 const RouteRenderer: React.FC = () => {
   const element = useRoutes(routes);
@@ -30,7 +29,6 @@ const RouteRenderer: React.FC = () => {
 export const App: React.FC = () => {
   const loadInitialData = useLibraryStore(state => state.loadInitialData);
   const loadSettings = useSettingsStore(state => state.loadSettings);
-  const performanceMode = useSettingsStore(state => state.performanceMode);
   
   const isLocked = useLockStore(state => state.isLocked);
   const verifyPin = useLockStore(state => state.verifyPin);
@@ -39,7 +37,6 @@ export const App: React.FC = () => {
   const checkLockTimeout = useLockStore(state => state.checkLockTimeout);
   const updateActiveTimestamp = useLockStore(state => state.updateActiveTimestamp);
 
-  const [fps, setFps] = useState(60);
   const [enteredPin, setEnteredPin] = useState('');
   const [pinError, setPinError] = useState(false);
 
@@ -47,11 +44,6 @@ export const App: React.FC = () => {
     loadSettings();
     initLock();
     loadInitialData();
-
-    // Start FPS monitor in development
-    startFpsMeter((currentFps) => {
-      setFps(currentFps);
-    });
 
     const handleVisibilityChange = () => {
       if (document.hidden) {
@@ -70,7 +62,6 @@ export const App: React.FC = () => {
     window.addEventListener('click', handleUserActivity, { passive: true });
 
     return () => {
-      stopFpsMeter();
       document.removeEventListener('visibilitychange', handleVisibilityChange);
       window.removeEventListener('touchstart', handleUserActivity);
       window.removeEventListener('click', handleUserActivity);
@@ -115,7 +106,7 @@ export const App: React.FC = () => {
           {pinError && <p className="text-xs text-error">Incorrect PIN. Try again.</p>}
           <button
             type="submit"
-            className="w-full py-3 rounded-xl bg-primary text-on-primary font-semibold text-sm active:scale-98 transition-all"
+            className="w-full py-3 rounded-xl bg-primary text-on-primary font-semibold text-sm active:scale-98 transition-all cursor-pointer"
           >
             Unlock Vault
           </button>
@@ -127,17 +118,6 @@ export const App: React.FC = () => {
   return (
     <BrowserRouter>
       <div className="h-full w-full flex flex-col bg-surface text-on-surface overflow-hidden relative">
-        {/* Dev FPS Meter - Positioned at top-center so it NEVER overlaps action buttons */}
-        <div className="fixed top-2.5 left-1/2 -translate-x-1/2 z-50 pointer-events-none flex items-center gap-1.5 px-3 py-0.5 rounded-full bg-surface-container-lowest/80 backdrop-blur-md text-[10px] font-mono text-emerald-400 shadow-md">
-          <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
-          <span>{fps} FPS</span>
-          {performanceMode && (
-            <span className="text-amber-400 font-semibold flex items-center gap-0.5">
-              <Zap size={10} /> PERF
-            </span>
-          )}
-        </div>
-
         {/* Main Content Area - Momentum Scrolling */}
         <main className="flex-1 overflow-y-auto scroll-container relative overscroll-y-contain">
           <RouteRenderer />
