@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useAuthStore } from '../../store/useAuthStore';
 import { MonofolioLogo } from '../../components/m3e';
-import { Mail, Lock, ArrowRight, Sparkles, Shield, AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
+import { Mail, Lock, ArrowRight, ShieldCheck, Cpu, AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
 
 export const AuthGateScreen: React.FC = () => {
   const { signInWithEmail, signUpWithEmail, signInWithGoogle } = useAuthStore();
@@ -35,7 +35,7 @@ export const AuthGateScreen: React.FC = () => {
         if (res.error) {
           setErrorMessage(res.error.message || 'Sign up failed. Please try again.');
         } else {
-          setSuccessMessage('Account created! Please check your email to confirm or sign in.');
+          setSuccessMessage('Account created! You can now sign in to your vault.');
         }
       }
     } catch (err: any) {
@@ -62,29 +62,27 @@ export const AuthGateScreen: React.FC = () => {
   };
 
   return (
-    <div className="min-h-screen bg-surface text-on-surface flex flex-col justify-between p-6 select-none relative overflow-hidden">
-      {/* Dynamic Ambient Background Aura */}
-      <div className="absolute -top-32 -left-32 w-80 h-80 rounded-full bg-primary/15 blur-3xl pointer-events-none" />
-      <div className="absolute -bottom-32 -right-32 w-80 h-80 rounded-full bg-tertiary/15 blur-3xl pointer-events-none" />
+    <div
+      className="min-h-screen bg-surface text-on-surface flex flex-col justify-between p-6 select-none relative overflow-hidden"
+      style={{ fontFamily: "'Google Sans Flex', 'Google Sans', sans-serif" }}
+    >
+      {/* Soft Ambient Radial Lights (Zero Pixelation) */}
+      <div className="absolute top-0 left-1/2 -translate-x-1/2 w-[480px] h-[320px] bg-gradient-to-b from-primary/10 via-tertiary/5 to-transparent blur-3xl pointer-events-none rounded-full" />
 
-      {/* Header & Monogram Emblem */}
+      {/* Brand Header */}
       <motion.div
-        initial={{ opacity: 0, y: -16 }}
+        initial={{ opacity: 0, y: -12 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
-        className="flex flex-col items-center text-center pt-6 space-y-3 relative z-10"
+        className="flex flex-col items-center text-center pt-8 space-y-3.5 relative z-10"
       >
-        <div className="relative">
-          <div className="w-20 h-20 rounded-[28px] bg-primary-container/80 flex items-center justify-center p-4 shadow-xl border border-outline-variant/10">
-            <MonofolioLogo size={48} className="text-primary" />
-          </div>
-          <div className="absolute -bottom-1 -right-1 p-1 rounded-full bg-surface-container-highest text-primary shadow-sm">
-            <Sparkles className="w-3.5 h-3.5" />
-          </div>
+        {/* Authentic Monofolio Logo Frame (from picture) */}
+        <div className="relative transform hover:scale-105 transition-transform duration-300">
+          <MonofolioLogo variant="framed" width={84} height={114} />
         </div>
 
         <div className="space-y-1">
-          <h1 className="text-3xl font-black tracking-tight text-on-surface">
+          <h1 className="text-3xl font-extrabold tracking-tight text-on-surface">
             Monofolio
           </h1>
           <p className="text-xs text-on-surface-variant font-medium max-w-xs mx-auto leading-relaxed">
@@ -92,32 +90,32 @@ export const AuthGateScreen: React.FC = () => {
           </p>
         </div>
 
-        {/* Feature Micro-Badges */}
-        <div className="flex items-center gap-1.5 pt-1">
-          <span className="px-3 py-1 rounded-full bg-surface-container-high text-[10px] font-bold text-on-surface-variant flex items-center gap-1">
-            <Shield className="w-3 h-3 text-primary" />
+        {/* Feature Pills (No Emojis - Vector Icons Only) */}
+        <div className="flex items-center gap-2 pt-0.5">
+          <div className="px-3 py-1 rounded-full bg-surface-container-high text-[11px] font-semibold text-on-surface-variant flex items-center gap-1.5 shadow-sm">
+            <ShieldCheck className="w-3.5 h-3.5 text-primary" />
             <span>End-to-End Private</span>
-          </span>
-          <span className="px-3 py-1 rounded-full bg-surface-container-high text-[10px] font-bold text-on-surface-variant flex items-center gap-1">
-            <Sparkles className="w-3 h-3 text-primary" />
+          </div>
+          <div className="px-3 py-1 rounded-full bg-surface-container-high text-[11px] font-semibold text-on-surface-variant flex items-center gap-1.5 shadow-sm">
+            <Cpu className="w-3.5 h-3.5 text-primary" />
             <span>Groq Llama 3.3</span>
-          </span>
+          </div>
         </div>
       </motion.div>
 
-      {/* Main Authentication Card */}
+      {/* Main Authentication Container (No Boxy White Borders) */}
       <motion.div
-        initial={{ opacity: 0, scale: 0.96 }}
+        initial={{ opacity: 0, scale: 0.97 }}
         animate={{ opacity: 1, scale: 1 }}
-        transition={{ duration: 0.4, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
-        className="w-full max-w-md mx-auto my-auto p-6 rounded-[32px] bg-surface-container shadow-2xl border border-outline-variant/20 relative z-10 space-y-4"
+        transition={{ duration: 0.45, delay: 0.1, ease: [0.16, 1, 0.3, 1] }}
+        className="w-full max-w-md mx-auto my-auto p-6 rounded-[36px] bg-surface-container shadow-2xl relative z-10 space-y-4"
       >
-        {/* Google / Gmail Single Sign-On Button */}
+        {/* Google Sign-In Action */}
         <button
           type="button"
           onClick={handleGoogleSignIn}
           disabled={isGoogleLoading}
-          className="w-full py-3.5 px-4 rounded-2xl bg-surface-container-highest hover:bg-surface-container-lowest text-on-surface font-bold text-xs flex items-center justify-center gap-3 shadow-sm border border-outline-variant/15 active:scale-98 transition-all cursor-pointer"
+          className="w-full py-3.5 px-4 rounded-full bg-surface-container-highest hover:bg-surface-container-high text-on-surface font-bold text-xs flex items-center justify-center gap-3 shadow-sm active:scale-98 transition-all cursor-pointer"
         >
           {isGoogleLoading ? (
             <Loader2 className="w-4 h-4 animate-spin text-primary" />
@@ -144,17 +142,17 @@ export const AuthGateScreen: React.FC = () => {
           <span>Continue with Google / Gmail</span>
         </button>
 
-        {/* Visual Divider */}
-        <div className="flex items-center gap-3">
-          <div className="flex-1 h-px bg-outline-variant/20" />
-          <span className="text-[11px] font-bold text-on-surface-variant font-mono uppercase tracking-wider">
+        {/* Minimal Sub-Divider */}
+        <div className="flex items-center gap-3 px-2">
+          <div className="flex-1 h-px bg-surface-container-highest" />
+          <span className="text-[10px] font-bold text-on-surface-variant font-mono uppercase tracking-widest">
             or with email
           </span>
-          <div className="flex-1 h-px bg-outline-variant/20" />
+          <div className="flex-1 h-px bg-surface-container-highest" />
         </div>
 
         {/* Sign In vs Sign Up Segmented Switcher */}
-        <div className="flex p-1 rounded-full bg-surface-container-high">
+        <div className="flex p-1 rounded-full bg-surface-container-highest">
           <button
             type="button"
             onClick={() => {
@@ -187,44 +185,44 @@ export const AuthGateScreen: React.FC = () => {
           </button>
         </div>
 
-        {/* Email & Password Form */}
+        {/* Form Inputs */}
         <form onSubmit={handleEmailAuth} className="space-y-3">
           <div className="space-y-1">
-            <label className="text-[11px] font-bold text-on-surface-variant font-mono px-1">
-              EMAIL ADDRESS
+            <label className="text-[10px] font-bold text-on-surface-variant font-mono px-1 tracking-wider uppercase">
+              Email Address
             </label>
             <div className="relative">
-              <Mail className="w-4 h-4 text-on-surface-variant absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Mail className="w-4 h-4 text-on-surface-variant absolute left-4 top-1/2 -translate-y-1/2" />
               <input
                 type="email"
                 required
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 placeholder="student@university.edu"
-                className="w-full bg-surface-container-high text-on-surface rounded-2xl pl-10 pr-4 py-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary shadow-inner"
+                className="w-full bg-surface-container-highest text-on-surface rounded-2xl pl-11 pr-4 py-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary shadow-inner"
               />
             </div>
           </div>
 
           <div className="space-y-1">
-            <label className="text-[11px] font-bold text-on-surface-variant font-mono px-1">
-              PASSWORD
+            <label className="text-[10px] font-bold text-on-surface-variant font-mono px-1 tracking-wider uppercase">
+              Password
             </label>
             <div className="relative">
-              <Lock className="w-4 h-4 text-on-surface-variant absolute left-3.5 top-1/2 -translate-y-1/2" />
+              <Lock className="w-4 h-4 text-on-surface-variant absolute left-4 top-1/2 -translate-y-1/2" />
               <input
                 type={showPassword ? 'text' : 'password'}
                 required
                 minLength={6}
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
-                placeholder="Enter password (min 6 characters)"
-                className="w-full bg-surface-container-high text-on-surface rounded-2xl pl-10 pr-10 py-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary shadow-inner"
+                placeholder="Password (min 6 characters)"
+                className="w-full bg-surface-container-highest text-on-surface rounded-2xl pl-11 pr-11 py-3 text-xs focus:outline-none focus:ring-2 focus:ring-primary shadow-inner"
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-3.5 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface cursor-pointer"
+                className="absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant hover:text-on-surface cursor-pointer"
                 aria-label="Toggle password visibility"
               >
                 {showPassword ? <EyeOff className="w-4 h-4" /> : <Eye className="w-4 h-4" />}
@@ -238,7 +236,7 @@ export const AuthGateScreen: React.FC = () => {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="p-3 rounded-2xl bg-rose-500/10 border border-rose-500/20 text-rose-400 text-xs flex items-center gap-2"
+                className="p-3 rounded-2xl bg-rose-500/10 text-rose-400 text-xs flex items-center gap-2"
               >
                 <AlertCircle className="w-4 h-4 shrink-0" />
                 <span>{errorMessage}</span>
@@ -250,9 +248,9 @@ export const AuthGateScreen: React.FC = () => {
                 initial={{ opacity: 0, height: 0 }}
                 animate={{ opacity: 1, height: 'auto' }}
                 exit={{ opacity: 0, height: 0 }}
-                className="p-3 rounded-2xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-400 text-xs flex items-center gap-2"
+                className="p-3 rounded-2xl bg-emerald-500/10 text-emerald-400 text-xs flex items-center gap-2"
               >
-                <Sparkles className="w-4 h-4 shrink-0" />
+                <ShieldCheck className="w-4 h-4 shrink-0" />
                 <span>{successMessage}</span>
               </motion.div>
             )}
@@ -261,7 +259,7 @@ export const AuthGateScreen: React.FC = () => {
           <button
             type="submit"
             disabled={isLoading || !email.trim() || !password.trim()}
-            className="w-full py-3.5 px-4 rounded-2xl bg-primary text-on-primary font-bold text-xs flex items-center justify-center gap-2 shadow-md active:scale-98 transition-all cursor-pointer disabled:opacity-50"
+            className="w-full py-3.5 px-4 rounded-full bg-primary text-on-primary font-bold text-xs flex items-center justify-center gap-2 shadow-md active:scale-98 transition-all cursor-pointer disabled:opacity-50"
           >
             {isLoading ? (
               <Loader2 className="w-4 h-4 animate-spin" />
@@ -277,7 +275,7 @@ export const AuthGateScreen: React.FC = () => {
 
       {/* Footer Note */}
       <div className="text-center text-[10px] text-on-surface-variant/60 font-mono py-2">
-        Protected by Supabase & PostgreSQL &bull; Monofolio v2.0
+        Monofolio v2.0 &bull; Supabase PostgreSQL
       </div>
     </div>
   );
