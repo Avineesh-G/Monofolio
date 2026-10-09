@@ -1,62 +1,109 @@
-import type { Config } from 'tailwindcss';
+﻿import type { Config } from 'tailwindcss';
 
 export default {
   content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
-  darkMode: 'class',
+  darkMode: ['class', '[data-theme="dark"]'],
   theme: {
     extend: {
       colors: {
+        // Material 3 Expressive Tonal Roles
+        primary: {
+          DEFAULT: 'var(--md-sys-color-primary)',
+          container: 'var(--md-sys-color-primary-container)',
+        },
+        'on-primary': {
+          DEFAULT: 'var(--md-sys-color-on-primary)',
+          container: 'var(--md-sys-color-on-primary-container)',
+        },
+        secondary: {
+          DEFAULT: 'var(--md-sys-color-secondary)',
+          container: 'var(--md-sys-color-secondary-container)',
+        },
+        'on-secondary': {
+          DEFAULT: 'var(--md-sys-color-on-secondary)',
+          container: 'var(--md-sys-color-on-secondary-container)',
+        },
+        tertiary: {
+          DEFAULT: 'var(--md-sys-color-tertiary)',
+          container: 'var(--md-sys-color-tertiary-container)',
+        },
+        'on-tertiary': {
+          DEFAULT: 'var(--md-sys-color-on-tertiary)',
+          container: 'var(--md-sys-color-on-tertiary-container)',
+        },
+        error: {
+          DEFAULT: 'var(--md-sys-color-error)',
+          container: 'var(--md-sys-color-error-container)',
+        },
+        'on-error': {
+          DEFAULT: 'var(--md-sys-color-on-error)',
+          container: 'var(--md-sys-color-on-error-container)',
+        },
+        surface: {
+          DEFAULT: 'var(--md-sys-color-surface)',
+          dim: 'var(--md-sys-color-surface-dim)',
+          bright: 'var(--md-sys-color-surface-bright)',
+          'container-lowest': 'var(--md-sys-color-surface-container-lowest)',
+          'container-low': 'var(--md-sys-color-surface-container-low)',
+          container: 'var(--md-sys-color-surface-container)',
+          'container-high': 'var(--md-sys-color-surface-container-high)',
+          'container-highest': 'var(--md-sys-color-surface-container-highest)',
+        },
+        'on-surface': {
+          DEFAULT: 'var(--md-sys-color-on-surface)',
+          variant: 'var(--md-sys-color-on-surface-variant)',
+        },
+        outline: {
+          DEFAULT: 'var(--md-sys-color-outline)',
+          variant: 'var(--md-sys-color-outline-variant)',
+        },
+        inverse: {
+          surface: 'var(--md-sys-color-inverse-surface)',
+          'on-surface': 'var(--md-sys-color-inverse-on-surface)',
+          primary: 'var(--md-sys-color-inverse-primary)',
+        },
+
+        // Backward-compatible semantic aliases
         bg: {
-          DEFAULT: 'var(--color-bg-primary)',
-          secondary: 'var(--color-bg-secondary)',
-          tertiary: 'var(--color-bg-tertiary)',
-          elevated: 'var(--color-bg-elevated)',
-          card: 'var(--color-bg-card)',
+          DEFAULT: 'var(--md-sys-color-surface)',
+          secondary: 'var(--md-sys-color-surface-container)',
+          tertiary: 'var(--md-sys-color-surface-container-high)',
+          elevated: 'var(--md-sys-color-surface-container-highest)',
+          card: 'var(--md-sys-color-surface-container)',
         },
         accent: {
-          DEFAULT: 'var(--color-accent)',
-          hover: 'var(--color-accent-hover)',
-          muted: 'var(--color-accent-muted)',
-          glow: 'var(--color-accent-glow)',
+          DEFAULT: 'var(--md-sys-color-primary)',
+          hover: 'var(--md-sys-color-primary-container)',
+          muted: 'rgba(208, 188, 255, 0.15)',
+          glow: 'rgba(208, 188, 255, 0.35)',
         },
         text: {
-          primary: 'var(--color-text-primary)',
-          secondary: 'var(--color-text-secondary)',
-          muted: 'var(--color-text-muted)',
-          inverse: 'var(--color-text-inverse)',
+          primary: 'var(--md-sys-color-on-surface)',
+          secondary: 'var(--md-sys-color-on-surface-variant)',
+          muted: 'var(--md-sys-color-outline)',
+          inverse: 'var(--md-sys-color-inverse-on-surface)',
         },
         border: {
-          subtle: 'var(--color-border-subtle)',
-          medium: 'var(--color-border-medium)',
-          accent: 'var(--color-border-accent)',
+          subtle: 'var(--md-sys-color-outline-variant)',
+          medium: 'var(--md-sys-color-outline)',
+          accent: 'var(--md-sys-color-primary)',
         },
-        status: {
-          success: 'var(--color-success)',
-          warning: 'var(--color-warning)',
-          error: 'var(--color-error)',
-          info: 'var(--color-info)',
-        },
-        subject: {
-          blue: '#3b82f6',
-          purple: '#8b5cf6',
-          amber: '#f59e0b',
-          emerald: '#10b981',
-          rose: '#f43f5e',
-          cyan: '#06b6d4',
-          indigo: '#6366f1',
-          teal: '#14b8a6',
-        }
       },
       borderRadius: {
-        'sm': 'var(--radius-sm)',
-        DEFAULT: 'var(--radius-md)',
-        'md': 'var(--radius-md)',
-        'lg': 'var(--radius-lg)',
-        'xl': 'var(--radius-xl)',
-        '2xl': 'var(--radius-2xl)',
+        none: 'var(--shape-none)',
+        xs: 'var(--shape-xs)',
+        sm: 'var(--shape-sm)',
+        md: 'var(--shape-md)',
+        lg: 'var(--shape-lg)',
+        'lg-inc': 'var(--shape-lg-inc)',
+        xl: 'var(--shape-xl)',
+        'xl-inc': 'var(--shape-xl-inc)',
+        xxl: 'var(--shape-xxl)',
+        full: 'var(--shape-full)',
+        DEFAULT: 'var(--shape-md)',
       },
       fontFamily: {
-        sans: ['Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'Roboto', 'sans-serif'],
+        sans: ['Roboto Flex', 'Roboto', 'Inter', 'system-ui', '-apple-system', 'BlinkMacSystemFont', 'Segoe UI', 'sans-serif'],
       },
       spacing: {
         'safe-top': 'var(--safe-area-top, 0px)',

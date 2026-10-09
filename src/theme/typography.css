@@ -1,0 +1,143 @@
+﻿/* Material 3 Expressive Typography Scale */
+
+@layer utilities {
+  /* Display Large: 57 / 64 */
+  .m3-display-large {
+    font-size: 57px;
+    line-height: 64px;
+    font-weight: 400;
+    letter-spacing: -0.25px;
+  }
+  .m3-display-large-emp {
+    font-size: 57px;
+    line-height: 64px;
+    font-weight: 600;
+    letter-spacing: -0.25px;
+  }
+
+  /* Display Medium: 45 / 52 */
+  .m3-display-medium {
+    font-size: 45px;
+    line-height: 52px;
+    font-weight: 400;
+    letter-spacing: 0px;
+  }
+  .m3-display-medium-emp {
+    font-size: 45px;
+    line-height: 52px;
+    font-weight: 600;
+    letter-spacing: 0px;
+  }
+
+  /* Headline Large: 32 / 40 */
+  .m3-headline-large {
+    font-size: 32px;
+    line-height: 40px;
+    font-weight: 400;
+    letter-spacing: 0px;
+  }
+  .m3-headline-large-emp {
+    font-size: 32px;
+    line-height: 40px;
+    font-weight: 650;
+    letter-spacing: -0.15px;
+  }
+
+  /* Headline Medium: 28 / 36 */
+  .m3-headline-medium {
+    font-size: 28px;
+    line-height: 36px;
+    font-weight: 400;
+    letter-spacing: 0px;
+  }
+  .m3-headline-medium-emp {
+    font-size: 28px;
+    line-height: 36px;
+    font-weight: 650;
+    letter-spacing: -0.1px;
+  }
+
+  /* Title Large: 22 / 28 */
+  .m3-title-large {
+    font-size: 22px;
+    line-height: 28px;
+    font-weight: 450;
+    letter-spacing: 0px;
+  }
+  .m3-title-large-emp {
+    font-size: 22px;
+    line-height: 28px;
+    font-weight: 650;
+    letter-spacing: 0px;
+  }
+
+  /* Title Medium: 16 / 24 */
+  .m3-title-medium {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 500;
+    letter-spacing: 0.15px;
+  }
+  .m3-title-medium-emp {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 700;
+    letter-spacing: 0.15px;
+  }
+
+  /* Body Large: 16 / 24 */
+  .m3-body-large {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 400;
+    letter-spacing: 0.5px;
+  }
+  .m3-body-large-emp {
+    font-size: 16px;
+    line-height: 24px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+
+  /* Body Medium: 14 / 20 */
+  .m3-body-medium {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 400;
+    letter-spacing: 0.25px;
+  }
+  .m3-body-medium-emp {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+    letter-spacing: 0.25px;
+  }
+
+  /* Label Large: 14 / 20 */
+  .m3-label-large {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 500;
+    letter-spacing: 0.1px;
+  }
+  .m3-label-large-emp {
+    font-size: 14px;
+    line-height: 20px;
+    font-weight: 700;
+    letter-spacing: 0.1px;
+  }
+
+  /* Label Medium: 12 / 16 */
+  .m3-label-medium {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 500;
+    letter-spacing: 0.5px;
+  }
+  .m3-label-medium-emp {
+    font-size: 12px;
+    line-height: 16px;
+    font-weight: 700;
+    letter-spacing: 0.5px;
+  }
+}

@@ -1,4 +1,5 @@
-import { create } from 'zustand';
+﻿import { create } from 'zustand';
+import { applyTheme, ThemeMode } from '../theme/colors';
 
 interface SettingsState {
   groqApiKey: string;
@@ -6,8 +7,10 @@ interface SettingsState {
   aiBaseUrl: string;
   performanceMode: boolean;
   appLockEnabled: boolean;
-  lockTimeoutMs: number; // e.g. 60000ms (1 min)
+  lockTimeoutMs: number;
   hasAcceptedPrivacyNotice: boolean;
+  seedColor: string;
+  themeMode: ThemeMode;
 
   // Actions
   setGroqApiKey: (key: string) => void;
@@ -15,6 +18,8 @@ interface SettingsState {
   setPerformanceMode: (enabled: boolean) => void;
   setAppLockEnabled: (enabled: boolean) => void;
   setHasAcceptedPrivacyNotice: (accepted: boolean) => void;
+  setSeedColor: (hex: string) => void;
+  setThemeMode: (mode: ThemeMode) => void;
   loadSettings: () => void;
 }
 
@@ -28,6 +33,8 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
   appLockEnabled: false,
   lockTimeoutMs: 60000,
   hasAcceptedPrivacyNotice: false,
+  seedColor: '#6750a4', // Default Violet seed
+  themeMode: 'dark', // Default Dark mode
 
   setGroqApiKey: (groqApiKey) => {
     set({ groqApiKey });
@@ -61,6 +68,18 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
     saveToStorage(get());
   },
 
+  setSeedColor: (seedColor) => {
+    set({ seedColor });
+    applyTheme(seedColor, get().themeMode);
+    saveToStorage(get());
+  },
+
+  setThemeMode: (themeMode) => {
+    set({ themeMode });
+    applyTheme(get().seedColor, themeMode);
+    saveToStorage(get());
+  },
+
   loadSettings: () => {
     try {
       const stored = localStorage.getItem(SETTINGS_KEY);
@@ -70,11 +89,15 @@ export const useSettingsStore = create<SettingsState>((set, get) => ({
         if (parsed.performanceMode && typeof document !== 'undefined') {
           document.body.classList.add('perf-mode');
         }
+        applyTheme(parsed.seedColor || '#6750a4', parsed.themeMode || 'dark');
+      } else {
+        applyTheme('#6750a4', 'dark');
       }
     } catch (e) {
       console.warn('Could not load settings from storage', e);
+      applyTheme('#6750a4', 'dark');
     }
-  }
+  },
 }));
 
 function saveToStorage(state: SettingsState) {
@@ -87,6 +110,8 @@ function saveToStorage(state: SettingsState) {
       appLockEnabled: state.appLockEnabled,
       lockTimeoutMs: state.lockTimeoutMs,
       hasAcceptedPrivacyNotice: state.hasAcceptedPrivacyNotice,
+      seedColor: state.seedColor,
+      themeMode: state.themeMode,
     };
     localStorage.setItem(SETTINGS_KEY, JSON.stringify(toSave));
   } catch (e) {
