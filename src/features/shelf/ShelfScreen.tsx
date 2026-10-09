@@ -510,10 +510,10 @@ export const ShelfScreen: React.FC<ShelfScreenProps> = ({
                   <TopicRow
                     key={top.id}
                     title={`${idx + 1}. ${top.name}`}
-                    flashcardCount={4}
+                    flashcardCount={subjectDocs.length}
                     dueCards={0}
                     masteryPercent={top.mastery || 0}
-                    isComplete={top.mastery >= 75}
+                    isComplete={(top.mastery || 0) >= 75}
                     onClick={() => onOpenTopic && onOpenTopic(top.id)}
                   />
                 ))
