@@ -5,7 +5,7 @@ import { MonofolioLogo } from '../../components/m3e';
 import { Mail, Lock, ArrowRight, ShieldCheck, Cpu, AlertCircle, Eye, EyeOff, Loader2 } from 'lucide-react';
 
 export const AuthGateScreen: React.FC = () => {
-  const { signInWithEmail, signUpWithEmail, signInWithGoogle } = useAuthStore();
+  const { signInWithEmail, signUpWithEmail, signInWithGoogle, signInAsGuest } = useAuthStore();
 
   const [mode, setMode] = useState<'signin' | 'signup'>('signin');
   const [email, setEmail] = useState('');
@@ -273,6 +273,16 @@ export const AuthGateScreen: React.FC = () => {
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
+          </button>
+
+          {/* 1-Tap Direct Offline Vault Access (Zero Login Friction) */}
+          <button
+            type="button"
+            onClick={signInAsGuest}
+            className="w-full py-2.5 px-4 rounded-full bg-surface-container-highest/80 hover:bg-surface-container-highest text-on-surface-variant font-bold text-[11px] flex items-center justify-center gap-2 active:scale-98 transition-all cursor-pointer border border-outline-variant/30 mt-1"
+          >
+            <ShieldCheck className="w-3.5 h-3.5 text-primary" />
+            <span>Open Offline Vault (Direct 1-Tap Access)</span>
           </button>
         </form>
       </motion.div>

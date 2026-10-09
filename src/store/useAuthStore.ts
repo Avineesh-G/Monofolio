@@ -16,6 +16,7 @@ interface AuthState {
   signInWithEmail: (email: string, pass: string) => Promise<{ error: Error | null }>;
   signUpWithEmail: (email: string, pass: string) => Promise<{ error: Error | null }>;
   signInWithGoogle: () => Promise<{ error: Error | null }>;
+  signInAsGuest: () => void;
   signOut: () => Promise<void>;
 }
 
@@ -27,12 +28,31 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   initializeAuth: async () => {
     try {
-      // 1. Fetch current session
+      // Check for persisted guest session in localStorage
+      const guestActive = localStorage.getItem('monofolio_guest_session');
+      if (guestActive === 'true') {
+        const mockGuestUser = {
+          id: 'guest-local-vault',
+          email: 'offline-scholar@monofolio.vault',
+          app_metadata: {},
+          user_metadata: { name: 'Vault Scholar' },
+          aud: 'authenticated',
+          created_at: new Date().toISOString(),
+        } as User;
+
+        set({ user: mockGuestUser, session: null, loading: false, initialized: true });
+        return;
+      }
+
+      // 1. Fetch current session from Supabase
       const { data: { session } } = await supabase.auth.getSession();
       set({ session, user: session?.user || null, loading: false, initialized: true });
 
       // 2. Listen to active auth state changes
       supabase.auth.onAuthStateChange((_event, newSession) => {
+        if (newSession) {
+          localStorage.removeItem('monofolio_guest_session');
+        }
         set({ session: newSession, user: newSession?.user || null, loading: false });
       });
 
@@ -42,10 +62,8 @@ export const useAuthStore = create<AuthState>((set) => ({
           const url = data.url;
           if (url && (url.includes('access_token=') || url.includes('refresh_token=') || url.includes('code='))) {
             try {
-              // Close the in-app browser tab immediately upon return
               await Browser.close().catch(() => {});
 
-              // Handle token hash fragments (OAuth flow)
               if (url.includes('#')) {
                 const fragment = url.split('#')[1];
                 const params = new URLSearchParams(fragment);
@@ -74,8 +92,23 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
+  signInAsGuest: () => {
+    localStorage.setItem('monofolio_guest_session', 'true');
+    const mockGuestUser = {
+      id: 'guest-local-vault',
+      email: 'offline-scholar@monofolio.vault',
+      app_metadata: {},
+      user_metadata: { name: 'Vault Scholar' },
+      aud: 'authenticated',
+      created_at: new Date().toISOString(),
+    } as User;
+
+    set({ user: mockGuestUser, session: null, loading: false, initialized: true });
+  },
+
   signInWithEmail: async (email: string, pass: string) => {
     try {
+      localStorage.removeItem('monofolio_guest_session');
       const { error } = await supabase.auth.signInWithPassword({ email, password: pass });
       return { error: error ? new Error(error.message) : null };
     } catch (e: any) {
@@ -85,6 +118,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   signUpWithEmail: async (email: string, pass: string) => {
     try {
+      localStorage.removeItem('monofolio_guest_session');
       const { error } = await supabase.auth.signUp({ email, password: pass });
       return { error: error ? new Error(error.message) : null };
     } catch (e: any) {
@@ -94,6 +128,7 @@ export const useAuthStore = create<AuthState>((set) => ({
 
   signInWithGoogle: async () => {
     try {
+      localStorage.removeItem('monofolio_guest_session');
       const isNative = Capacitor.isNativePlatform();
       const redirectUrl = isNative
         ? 'com.monofolio.app://auth-callback'
@@ -103,7 +138,7 @@ export const useAuthStore = create<AuthState>((set) => ({
         provider: 'google',
         options: {
           redirectTo: redirectUrl,
-          skipBrowserRedirect: isNative, // For native APK, open in custom tab
+          skipBrowserRedirect: isNative,
         },
       });
 
@@ -111,7 +146,6 @@ export const useAuthStore = create<AuthState>((set) => ({
         return { error: new Error(error.message) };
       }
 
-      // If running inside Android APK, open in native Chrome Custom Tab (seamlessly returns to app)
       if (isNative && data?.url) {
         await Browser.open({
           url: data.url,
@@ -127,7 +161,8 @@ export const useAuthStore = create<AuthState>((set) => ({
   },
 
   signOut: async () => {
-    await supabase.auth.signOut();
+    localStorage.removeItem('monofolio_guest_session');
+    await supabase.auth.signOut().catch(() => {});
     set({ user: null, session: null });
   },
 }));
