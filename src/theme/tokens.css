@@ -133,16 +133,24 @@ button, a, input, select, textarea, [role=button] {
 
 /* Expressive M3 utilities without harsh white borders */
 .m3-glass {
-  background: rgba(33, 31, 38, 0.82);
+  background: color-mix(in srgb, var(--md-sys-color-surface-container) 88%, transparent);
   backdrop-filter: blur(20px);
   -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.06);
+}
+
+.dark .m3-glass {
   box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 .m3-glass-elevated {
-  background: rgba(43, 41, 48, 0.92);
+  background: color-mix(in srgb, var(--md-sys-color-surface-container-high) 92%, transparent);
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.1);
+}
+
+.dark .m3-glass-elevated {
   box-shadow: 0 8px 32px rgba(0, 0, 0, 0.38);
 }
 

@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React, { useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useMotionPreset } from '../../theme/motion';
 import { Button } from './Button';
@@ -30,10 +30,24 @@ export const Dialog: React.FC<DialogProps> = ({
 }) => {
   const motionPreset = useMotionPreset();
 
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape' && isOpen) {
+        onClose();
+      }
+    };
+    if (isOpen) {
+      window.addEventListener('keydown', handleKeyDown);
+    }
+    return () => {
+      window.removeEventListener('keydown', handleKeyDown);
+    };
+  }, [isOpen, onClose]);
+
   return (
     <AnimatePresence>
       {isOpen && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 pointer-events-none select-none">
+        <div className="fixed inset-0 z-50 flex items-center justify-center p-4 select-none">
           {/* Backdrop */}
           <motion.div
             initial={{ opacity: 0 }}
@@ -41,7 +55,7 @@ export const Dialog: React.FC<DialogProps> = ({
             exit={{ opacity: 0 }}
             transition={motionPreset.effectsFast}
             onClick={onClose}
-            className="fixed inset-0 bg-black/60 pointer-events-auto"
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm cursor-pointer"
           />
 
           {/* Centered Dialog Surface */}
@@ -50,7 +64,8 @@ export const Dialog: React.FC<DialogProps> = ({
             animate={{ opacity: 1, scale: 1, y: 0 }}
             exit={{ opacity: 0, scale: 0.9, y: 8 }}
             transition={motionPreset.spatialDefault}
-            className="relative w-full max-w-sm bg-surface-container-high text-on-surface rounded-xl p-6 border border-outline-variant/40 shadow-2xl pointer-events-auto space-y-4"
+            className="relative z-10 w-full max-w-sm bg-surface-container-high text-on-surface rounded-[28px] p-6 shadow-2xl space-y-4"
+            onClick={(e) => e.stopPropagation()}
           >
             {icon && (
               <div className="flex items-center justify-center text-primary">
@@ -59,9 +74,9 @@ export const Dialog: React.FC<DialogProps> = ({
             )}
 
             <div className="space-y-1.5 text-center">
-              <h3 className="m3-headline-small-emp m3-title-large-emp text-on-surface">{title}</h3>
+              <h3 className="text-lg font-extrabold text-on-surface">{title}</h3>
               {description && (
-                <p className="m3-body-medium text-on-surface-variant leading-relaxed">
+                <p className="text-xs text-on-surface-variant leading-relaxed font-medium">
                   {description}
                 </p>
               )}

@@ -689,10 +689,10 @@ export const ShelfScreen: React.FC<ShelfScreenProps> = ({
         </div>
       </SheetCard>
 
-      {/* Uploading indicator */}
+      {/* Uploading indicator with WORKING onClose callback */}
       <SheetCard
         isOpen={isUploadingPdf}
-        onClose={() => {}}
+        onClose={() => setIsUploadingPdf(false)}
         title="Processing PDF"
       >
         <div className="py-6 flex flex-col items-center justify-center gap-3 text-center">
