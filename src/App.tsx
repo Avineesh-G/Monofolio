@@ -7,7 +7,9 @@ import { Skeleton } from './components/Skeleton';
 import { useLibraryStore } from './store/useLibraryStore';
 import { useSettingsStore } from './store/useSettingsStore';
 import { useLockStore } from './store/useLockStore';
-import { Lock } from 'lucide-react';
+import { useAuthStore } from './store/useAuthStore';
+import { AuthGateScreen } from './features/auth/AuthGateScreen';
+import { Lock, Loader2 } from 'lucide-react';
 
 const RouteRenderer: React.FC = () => {
   const element = useRoutes(routes);
@@ -30,6 +32,8 @@ export const App: React.FC = () => {
   const loadInitialData = useLibraryStore(state => state.loadInitialData);
   const loadSettings = useSettingsStore(state => state.loadSettings);
   
+  const { user, initialized, initializeAuth } = useAuthStore();
+
   const isLocked = useLockStore(state => state.isLocked);
   const verifyPin = useLockStore(state => state.verifyPin);
   const unlock = useLockStore(state => state.unlock);
@@ -42,6 +46,7 @@ export const App: React.FC = () => {
 
   useEffect(() => {
     loadSettings();
+    initializeAuth();
     initLock();
     loadInitialData();
 
@@ -66,7 +71,7 @@ export const App: React.FC = () => {
       window.removeEventListener('touchstart', handleUserActivity);
       window.removeEventListener('click', handleUserActivity);
     };
-  }, [loadInitialData, loadSettings, initLock, checkLockTimeout, updateActiveTimestamp]);
+  }, [loadInitialData, loadSettings, initializeAuth, initLock, checkLockTimeout, updateActiveTimestamp]);
 
   const handleUnlock = (e: React.FormEvent) => {
     e.preventDefault();
@@ -80,6 +85,22 @@ export const App: React.FC = () => {
     }
   };
 
+  // 1. Initial Authentication Loading State
+  if (!initialized) {
+    return (
+      <div className="h-screen w-screen bg-surface flex flex-col items-center justify-center p-6 text-center">
+        <Loader2 className="w-10 h-10 text-primary animate-spin mb-3" />
+        <p className="text-xs font-mono text-on-surface-variant">Connecting to Monofolio Vault...</p>
+      </div>
+    );
+  }
+
+  // 2. Mandatory Authentication Gate - Only Gmail / Email Login permitted
+  if (!user) {
+    return <AuthGateScreen />;
+  }
+
+  // 3. Security PIN Lock Gate
   if (isLocked) {
     return (
       <div className="h-full w-full bg-surface text-on-surface flex flex-col items-center justify-center p-6 text-center select-none">
@@ -115,6 +136,7 @@ export const App: React.FC = () => {
     );
   }
 
+  // 4. Authenticated Application
   return (
     <BrowserRouter>
       <div className="h-full w-full flex flex-col bg-surface text-on-surface overflow-hidden relative">
