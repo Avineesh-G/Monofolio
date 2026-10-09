@@ -56,10 +56,11 @@ export const NavigationBar: React.FC = () => {
 
   return (
     <nav
-      className="fixed bottom-3 inset-x-0 z-30 flex justify-center px-4 pointer-events-none select-none"
+      className="fixed bottom-4 inset-x-0 z-30 flex justify-center px-4 pointer-events-none select-none"
       aria-label="Bottom Navigation"
     >
-      <div className="pointer-events-auto flex items-center gap-1 p-1.5 rounded-full bg-surface-container-high/95 backdrop-blur-2xl shadow-2xl">
+      {/* Floating Rounded Dock Container with distinct border & shadow */}
+      <div className="pointer-events-auto flex items-center justify-between gap-1 px-3 py-2 rounded-full bg-surface-container-high/95 dark:bg-[#1a121e]/95 backdrop-blur-2xl border border-outline-variant/30 dark:border-white/10 shadow-[0_12px_36px_rgba(0,0,0,0.55)] ring-1 ring-black/10 max-w-md w-full">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive =
@@ -71,32 +72,44 @@ export const NavigationBar: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => navigate(tab.path)}
-              className={`relative px-3.5 py-2 rounded-full flex flex-col items-center justify-center transition-colors focus:outline-none cursor-pointer ${
-                isActive ? 'text-on-primary-container' : 'text-on-surface-variant hover:text-on-surface'
-              }`}
+              className="relative flex-1 py-1 px-1 rounded-full flex flex-col items-center justify-center transition-all duration-200 focus:outline-none cursor-pointer group"
               aria-label={tab.label}
               aria-current={isActive ? 'page' : undefined}
             >
-              {isActive && (
-                <motion.div
-                  layoutId="m3e-active-nav-indicator"
-                  transition={motionPreset.spatialDefault}
-                  className="absolute inset-0 rounded-full bg-primary-container shadow-sm"
-                />
-              )}
-
-              <div className="relative z-10 flex items-center justify-center">
-                <Icon className={`w-5 h-5 transition-transform duration-200 ${isActive ? 'scale-110 stroke-[2.4px]' : 'stroke-[1.8px]'}`} />
-                {tab.badge !== undefined && (
-                  <span className="absolute -top-1 -right-2 px-1.5 py-0.2 rounded-full bg-error text-on-error text-[10px] font-mono font-bold leading-tight shadow-sm">
-                    {tab.badge}
-                  </span>
+              {/* Active Pill Capsule (Comfortably bounds the icon inside the dock) */}
+              <div className="relative flex items-center justify-center">
+                {isActive && (
+                  <motion.div
+                    layoutId="m3e-active-nav-pill"
+                    transition={motionPreset.spatialDefault}
+                    className="absolute -inset-x-3 -inset-y-1 rounded-full bg-primary/20 dark:bg-primary/25 border border-primary/30 shadow-sm"
+                  />
                 )}
+
+                <div className="relative z-10 flex items-center justify-center">
+                  <Icon
+                    className={`w-5 h-5 transition-all duration-200 ${
+                      isActive
+                        ? 'text-primary scale-110 stroke-[2.4px]'
+                        : 'text-on-surface-variant group-hover:text-on-surface stroke-[1.8px]'
+                    }`}
+                  />
+                  {tab.badge !== undefined && (
+                    <span className="absolute -top-1.5 -right-2.5 px-1.5 py-0.2 rounded-full bg-error text-on-error text-[9px] font-mono font-bold leading-tight shadow-sm">
+                      {tab.badge}
+                    </span>
+                  )}
+                </div>
               </div>
 
-              <span className={`relative z-10 text-[10px] font-bold mt-0.5 tracking-tight transition-all duration-200 ${
-                isActive ? 'opacity-100 font-extrabold text-on-primary-container' : 'opacity-70 text-on-surface-variant'
-              }`}>
+              {/* Tab Label */}
+              <span
+                className={`relative z-10 text-[10px] font-bold mt-1 tracking-tight transition-all duration-200 ${
+                  isActive
+                    ? 'text-primary font-extrabold opacity-100'
+                    : 'text-on-surface-variant group-hover:text-on-surface opacity-75'
+                }`}
+              >
                 {tab.label}
               </span>
             </button>
