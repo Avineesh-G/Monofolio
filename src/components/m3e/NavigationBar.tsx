@@ -36,8 +36,8 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ trailingAction }) 
       className="fixed bottom-4 inset-x-0 z-30 flex items-center justify-center gap-2.5 px-3 pointer-events-none select-none max-w-lg mx-auto"
       aria-label="Mobile Bottom Navigation"
     >
-      {/* 3-Tab Floating Pill Dock */}
-      <div className="pointer-events-auto flex items-center justify-between gap-1 px-3 py-1.5 rounded-full bg-surface-container-high/95 dark:bg-[#18111c]/95 backdrop-blur-3xl border border-outline-variant/30 dark:border-white/10 shadow-[0_16px_40px_rgba(0,0,0,0.65)] ring-1 ring-black/20 w-[240px] shrink-0">
+      {/* 3-Tab Floating Pill Dock (Exact Height: 54px) */}
+      <div className="pointer-events-auto h-[54px] w-[240px] flex items-center justify-between px-3 rounded-full bg-surface-container-high/95 dark:bg-[#18111c]/95 backdrop-blur-3xl border border-outline-variant/30 dark:border-white/10 shadow-[0_16px_40px_rgba(0,0,0,0.65)] ring-1 ring-black/20 shrink-0">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive =
@@ -49,12 +49,12 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ trailingAction }) 
             <button
               key={tab.id}
               onClick={() => navigate(tab.path)}
-              className="relative flex-1 py-1 rounded-full flex flex-col items-center justify-center transition-all duration-200 focus:outline-none cursor-pointer group"
+              className="relative flex-1 py-0.5 rounded-full flex flex-col items-center justify-center transition-all duration-200 focus:outline-none cursor-pointer group"
               aria-label={tab.label}
               aria-current={isActive ? 'page' : undefined}
             >
               {/* Soft Refined M3 Filled Pill Indicator */}
-              <div className="relative w-12 h-7 flex items-center justify-center">
+              <div className="relative w-12 h-6.5 flex items-center justify-center">
                 {isActive && (
                   <motion.div
                     layoutId="m3e-active-tab-pill"
@@ -74,7 +74,7 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ trailingAction }) 
 
               {/* Tab Label */}
               <span
-                className={`relative z-10 text-[10px] font-bold mt-0.5 tracking-tight transition-all duration-200 ${
+                className={`relative z-10 text-[10px] font-bold mt-0.5 tracking-tight transition-all duration-200 leading-none ${
                   isActive
                     ? 'text-primary font-extrabold opacity-100'
                     : 'text-on-surface-variant group-hover:text-on-surface opacity-75'
@@ -87,9 +87,9 @@ export const NavigationBar: React.FC<NavigationBarProps> = ({ trailingAction }) 
         })}
       </div>
 
-      {/* '+' Action Button Positioned Directly Beside the Dock */}
+      {/* '+' Action Button Sits Perfectly Aligned (Exact Height: 54px) */}
       {trailingAction && (
-        <div className="pointer-events-auto shrink-0">
+        <div className="pointer-events-auto shrink-0 flex items-center">
           {trailingAction}
         </div>
       )}

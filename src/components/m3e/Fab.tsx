@@ -92,7 +92,7 @@ export const Fab: React.FC<FabProps> = ({ onSelectOption }) => {
   };
 
   return (
-    <div className="relative">
+    <div className="relative flex items-center justify-center">
       {/* Dim Backdrop when Speed Dial is active */}
       <AnimatePresence>
         {isOpen && (
@@ -150,12 +150,12 @@ export const Fab: React.FC<FabProps> = ({ onSelectOption }) => {
         )}
       </AnimatePresence>
 
-      {/* Distinct '+' FAB button sitting directly beside navigation bar */}
+      {/* M3 Sized '+' FAB matching exact 54px dock height */}
       <motion.button
         whileTap={motionPreset.tapFeedback.whileTap}
         transition={motionPreset.tapFeedback.transition}
         onClick={() => setIsOpen(!isOpen)}
-        className="w-13 h-13 rounded-full bg-gradient-to-tr from-primary to-primary-container text-on-primary shadow-2xl flex items-center justify-center pointer-events-auto cursor-pointer focus:outline-none active:scale-95 transition-transform border border-white/10"
+        className="w-[54px] h-[54px] rounded-full bg-gradient-to-tr from-primary to-primary-container text-on-primary shadow-[0_16px_40px_rgba(0,0,0,0.65)] flex items-center justify-center pointer-events-auto cursor-pointer focus:outline-none active:scale-95 transition-transform border border-white/10 shrink-0"
         aria-label={isOpen ? 'Close Quick Menu' : 'Open Quick Menu'}
       >
         <motion.div
