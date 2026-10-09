@@ -1,4 +1,4 @@
-﻿import React from 'react';
+import React from 'react';
 import { ArrowLeft } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 
@@ -14,6 +14,7 @@ export interface TopAppBarProps {
   showBack?: boolean;
   onBack?: () => void;
   actions?: TopAppBarAction[];
+  trailingAction?: React.ReactNode;
   largeTitle?: boolean;
   className?: string;
 }
@@ -24,6 +25,7 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
   showBack = false,
   onBack,
   actions = [],
+  trailingAction,
   largeTitle = false,
   className = '',
 }) => {
@@ -66,17 +68,21 @@ export const TopAppBar: React.FC<TopAppBarProps> = ({
 
         {/* Trailing Actions */}
         <div className="flex items-center gap-1.5 shrink-0">
-          {actions.map((action, idx) => (
-            <button
-              key={idx}
-              onClick={action.onClick}
-              className="w-10 h-10 rounded-full flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors"
-              aria-label={action.label}
-              title={action.label}
-            >
-              {action.icon}
-            </button>
-          ))}
+          {trailingAction ? (
+            trailingAction
+          ) : (
+            actions.map((action, idx) => (
+              <button
+                key={idx}
+                onClick={action.onClick}
+                className="w-10 h-10 rounded-full flex items-center justify-center text-on-surface hover:bg-surface-container transition-colors"
+                aria-label={action.label}
+                title={action.label}
+              >
+                {action.icon}
+              </button>
+            ))
+          )}
         </div>
       </div>
 

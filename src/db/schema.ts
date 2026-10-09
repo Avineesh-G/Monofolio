@@ -89,6 +89,19 @@ export class StudyVaultDB extends Dexie {
   analyses!: Table<Analysis, ID>;
   quizzes!: Table<QuizCard, ID>;
 
+  get documents(): Table<Item, ID> {
+    return this.items;
+  }
+  get flashcards(): Table<QuizCard, ID> {
+    return this.quizzes;
+  }
+  get savedLinks(): Table<Item, ID> {
+    return this.items;
+  }
+  get coachAnalyses(): Table<Analysis, ID> {
+    return this.analyses;
+  }
+
   constructor() {
     super('studyvault_db');
 

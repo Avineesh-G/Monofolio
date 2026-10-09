@@ -1,8 +1,18 @@
-﻿import React from 'react';
+import React from 'react';
 import { Sparkles, AlertTriangle, Target, CheckCircle2, ShieldAlert, LucideIcon } from 'lucide-react';
 import { Shape, ShapeName } from '../../../theme/shapes';
 
-export type AnalysisTabKey = 'cheatSheet' | 'blindSpots' | 'examTraps' | 'actionPlan' | 'realityCheck';
+export type AnalysisTabKey =
+  | 'cheatSheet'
+  | 'blindSpots'
+  | 'examTraps'
+  | 'actionPlan'
+  | 'realityCheck'
+  | 'overview'
+  | 'reality'
+  | 'concepts'
+  | 'traps'
+  | 'action';
 
 export interface AnalysisCardProps {
   type: AnalysisTabKey;
@@ -19,13 +29,25 @@ export const AnalysisCard: React.FC<AnalysisCardProps> = ({
   realityVerdict,
   className = '',
 }) => {
-  const tabConfigs: Record<AnalysisTabKey, {
+  const tabConfigs: Record<string, {
     bg: string;
     icon: LucideIcon;
     shape: ShapeName;
     accentColor: string;
   }> = {
     cheatSheet: {
+      bg: 'bg-primary-container text-on-primary-container',
+      icon: Sparkles,
+      shape: 'flower',
+      accentColor: 'var(--md-sys-color-primary)',
+    },
+    overview: {
+      bg: 'bg-primary-container text-on-primary-container',
+      icon: Sparkles,
+      shape: 'flower',
+      accentColor: 'var(--md-sys-color-primary)',
+    },
+    concepts: {
       bg: 'bg-primary-container text-on-primary-container',
       icon: Sparkles,
       shape: 'flower',
@@ -43,13 +65,31 @@ export const AnalysisCard: React.FC<AnalysisCardProps> = ({
       shape: 'cookie9',
       accentColor: 'var(--md-sys-color-tertiary)',
     },
+    traps: {
+      bg: 'bg-tertiary-container text-on-tertiary-container',
+      icon: Target,
+      shape: 'cookie9',
+      accentColor: 'var(--md-sys-color-tertiary)',
+    },
     actionPlan: {
       bg: 'bg-surface-container-high text-on-surface',
       icon: CheckCircle2,
       shape: 'squircle',
       accentColor: 'var(--md-sys-color-primary)',
     },
+    action: {
+      bg: 'bg-surface-container-high text-on-surface',
+      icon: CheckCircle2,
+      shape: 'squircle',
+      accentColor: 'var(--md-sys-color-primary)',
+    },
     realityCheck: {
+      bg: 'bg-error-container text-on-error-container',
+      icon: ShieldAlert,
+      shape: 'heart',
+      accentColor: 'var(--md-sys-color-error)',
+    },
+    reality: {
       bg: 'bg-error-container text-on-error-container',
       icon: ShieldAlert,
       shape: 'heart',

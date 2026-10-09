@@ -1,73 +1,96 @@
-import React, { useMemo } from 'react';
-import { useLibraryStore } from '../../store/useLibraryStore';
-import { EmptyState } from '../../components/EmptyState';
-import { Link2, ExternalLink, Bookmark } from 'lucide-react';
-import { formatDate } from '../../lib/utils';
+import React, { useEffect, useState } from 'react';
+import { db, SavedLink, Subject } from '../../db';
+import { TopAppBar, SearchBar } from '../../components/m3e';
+import { LinkCard } from '../../components/m3e/cards';
+import { Link2 } from 'lucide-react';
 
-export const LinksScreen: React.FC = () => {
-  const items = useLibraryStore(state => state.items);
-  const subjects = useLibraryStore(state => state.subjects);
+interface LinksScreenProps {
+  onOpenLink?: (url: string) => void;
+}
 
-  const subjectMap = useMemo(() => new Map(subjects.map(s => [s.id, s])), [subjects]);
-  const links = useMemo(() => items.filter(i => i.kind === 'link'), [items]);
+export const LinksScreen: React.FC<LinksScreenProps> = ({
+  onOpenLink
+}) => {
+  const [links, setLinks] = useState<SavedLink[]>([]);
+  const [subjectsMap, setSubjectsMap] = useState<Map<string, Subject>>(new Map());
+  const [searchQuery, setSearchQuery] = useState('');
+
+  useEffect(() => {
+    const loadLinks = async () => {
+      try {
+        const [savedLinks, subjs] = await Promise.all([
+          db.savedLinks.orderBy('updatedAt').reverse().toArray(),
+          db.subjects.toArray()
+        ]);
+        setLinks(savedLinks);
+        const map = new Map<string, Subject>();
+        subjs.forEach(s => map.set(s.id, s));
+        setSubjectsMap(map);
+      } catch (err) {
+        console.error('Failed to load links:', err);
+      }
+    };
+    loadLinks();
+  }, []);
+
+  const filteredLinks = links.filter(l => {
+    if (!searchQuery.trim()) return true;
+    const q = searchQuery.toLowerCase();
+    const urlStr = l.url || '';
+    return l.title.toLowerCase().includes(q) || urlStr.toLowerCase().includes(q);
+  });
+
+  const handleLinkClick = (url: string) => {
+    if (onOpenLink) {
+      onOpenLink(url);
+    } else {
+      window.open(url, '_blank');
+    }
+  };
 
   return (
-    <div className="h-full flex flex-col px-5 pt-6 pb-20 overflow-y-auto scroll-container">
-      <div className="mb-4">
-        <h1 className="text-xl font-bold text-text-primary tracking-tight">Saved Links</h1>
-        <p className="text-xs text-text-secondary">Web resources and chat notes with study context</p>
-      </div>
+    <div className="min-h-screen bg-[var(--md-sys-color-background)] text-[var(--md-sys-color-on-background)] pb-24">
+      <TopAppBar
+        title="Resource Links"
+        subtitle={`${links.length} web resources collected`}
+      />
 
-      {links.length === 0 ? (
-        <div className="flex-1 flex items-center justify-center">
-          <EmptyState
-            icon={Bookmark}
-            title="No Saved Links"
-            description="Save helpful StackOverflow answers, YouTube tutorials, and online references with why you saved them."
-          />
+      <main className="px-4 py-3 space-y-4 max-w-2xl mx-auto">
+        <SearchBar
+          value={searchQuery}
+          onChange={setSearchQuery}
+          placeholder="Search saved resources..."
+          onClear={() => setSearchQuery('')}
+        />
+
+        <div className="space-3">
+          {filteredLinks.length === 0 ? (
+            <div className="p-8 text-center bg-[var(--md-sys-color-surface-container-low)] rounded-3xl border border-[var(--md-sys-color-outline-variant)]">
+              <Link2 className="w-10 h-10 mx-auto text-[var(--md-sys-color-outline)] mb-2" />
+              <p className="font-semibold text-[var(--md-sys-color-on-surface)]">No links found</p>
+              <p className="text-xs text-[var(--md-sys-color-on-surface-variant)] mt-1">
+                Save useful web articles, video links, or reference docs.
+              </p>
+            </div>
+          ) : (
+            filteredLinks.map((item) => {
+              const subj = item.subjectId ? subjectsMap.get(item.subjectId) : undefined;
+              const linkUrl = item.url || '';
+              return (
+                <LinkCard
+                  key={item.id}
+                  id={item.id}
+                  title={item.title}
+                  url={linkUrl}
+                  whySaved={item.linkNote || item.whySaved}
+                  subjectName={subj?.name}
+                  onClick={() => handleLinkClick(linkUrl)}
+                />
+              );
+            })
+          )}
         </div>
-      ) : (
-        <div className="space-y-3">
-          {links.map((link) => {
-            const sub = subjectMap.get(link.subjectId);
-            return (
-              <a
-                key={link.id}
-                href={link.url}
-                target="_blank"
-                rel="noreferrer"
-                className="block p-4 rounded-2xl bg-bg-card border border-border-subtle hover:border-border-medium active:scale-[0.99] transition-all"
-              >
-                <div className="flex items-start justify-between gap-3">
-                  <div className="flex items-center gap-2 min-w-0">
-                    <div className="w-8 h-8 rounded-lg bg-blue-500/15 text-blue-400 flex items-center justify-center flex-shrink-0">
-                      <Link2 size={16} />
-                    </div>
-                    <div className="min-w-0">
-                      <h4 className="text-xs font-semibold text-text-primary truncate">{link.title}</h4>
-                      <p className="text-[11px] text-text-muted truncate">{link.url}</p>
-                    </div>
-                  </div>
-                  <ExternalLink size={14} className="text-text-muted flex-shrink-0 mt-1" />
-                </div>
-
-                {link.linkNote && (
-                  <div className="mt-2.5 p-2 rounded-lg bg-white/5 text-[11px] text-text-secondary leading-snug">
-                    <span className="font-semibold text-accent">Why saved: </span>
-                    {link.linkNote}
-                  </div>
-                )}
-
-                <div className="flex items-center gap-2 mt-2 text-[10px] text-text-muted">
-                  {sub && <span className="text-text-secondary font-medium">{sub.name}</span>}
-                  <span>&bull;</span>
-                  <span>{formatDate(link.updatedAt)}</span>
-                </div>
-              </a>
-            );
-          })}
-        </div>
-      )}
+      </main>
     </div>
   );
 };

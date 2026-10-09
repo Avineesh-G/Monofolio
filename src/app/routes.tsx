@@ -1,4 +1,4 @@
-﻿import { lazy } from 'react';
+import { lazy } from 'react';
 import type { RouteObject } from 'react-router-dom';
 
 const HomeScreen = lazy(() => import('../features/home/HomeScreen').then(m => ({ default: m.HomeScreen })));
@@ -12,7 +12,7 @@ const SettingsScreen = lazy(() => import('../features/settings/SettingsScreen').
 const DevGalleryScreen = lazy(() => import('../features/dev/DevGalleryScreen').then(m => ({ default: m.DevGalleryScreen })));
 
 export const routes: RouteObject[] = [
-  { path: '/', element: <HomeScreen /> },
+  { path: '/', element: <HomeScreen onNavigateTab={(tab) => { window.location.href = tab === 'home' ? '/' : '/' + tab; }} /> },
   { path: '/shelf', element: <ShelfScreen /> },
   { path: '/library', element: <LibraryScreen /> },
   { path: '/coach', element: <CoachScreen /> },
