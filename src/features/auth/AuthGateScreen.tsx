@@ -28,14 +28,18 @@ export const AuthGateScreen: React.FC = () => {
       if (mode === 'signin') {
         const res = await signInWithEmail(email.trim(), password);
         if (res.error) {
-          setErrorMessage(res.error.message || 'Invalid email or password.');
+          if (res.error.message.toLowerCase().includes('invalid login credentials')) {
+            setErrorMessage('Account not found or password incorrect. If you haven\'t registered yet, switch to "Create Account" above to sign up first.');
+          } else {
+            setErrorMessage(res.error.message || 'Invalid email or password.');
+          }
         }
       } else {
         const res = await signUpWithEmail(email.trim(), password);
         if (res.error) {
-          setErrorMessage(res.error.message || 'Sign up failed. Please try again.');
+          setErrorMessage(res.error.message || 'Sign up failed. Please check your password (min 6 chars).');
         } else {
-          setSuccessMessage('Account created! You can now sign in to your vault.');
+          setSuccessMessage('Account registered successfully! Signing you in...');
         }
       }
     } catch (err: any) {
@@ -78,7 +82,7 @@ export const AuthGateScreen: React.FC = () => {
       >
         {/* Authentic Monofolio Logo Frame (from picture) */}
         <div className="relative transform hover:scale-105 transition-transform duration-300">
-          <MonofolioLogo variant="framed" width={84} height={114} />
+          <MonofolioLogo variant="framed" width={72} height={83} />
         </div>
 
         <div className="space-y-1">

@@ -16,12 +16,12 @@ export const MonofolioLogo: React.FC<MonofolioLogoProps> = ({
   variant = 'glyph',
 }) => {
   if (variant === 'framed') {
-    const computedW = width || size || 80;
-    const computedH = height || (typeof size === 'number' ? size * 1.35 : 108);
+    const computedW = width || size || 72;
+    const computedH = height || (typeof size === 'number' ? Math.round(size * 1.15) : 83);
 
     return (
       <svg
-        viewBox="0 0 160 216"
+        viewBox="0 0 160 184"
         width={computedW}
         height={computedH}
         className={`shrink-0 ${className}`}
@@ -29,43 +29,34 @@ export const MonofolioLogo: React.FC<MonofolioLogoProps> = ({
       >
         <defs>
           <linearGradient id="monoCardDarkGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#1e060c" />
-            <stop offset="50%" stopColor="#120307" />
-            <stop offset="100%" stopColor="#080103" />
-          </linearGradient>
-          <linearGradient id="monoCardLightGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#fdfbf9" />
-            <stop offset="50%" stopColor="#f4ece4" />
-            <stop offset="100%" stopColor="#e8ded2" />
+            <stop offset="0%" stopColor="#1a0710" />
+            <stop offset="50%" stopColor="#0f0309" />
+            <stop offset="100%" stopColor="#070104" />
           </linearGradient>
           <linearGradient id="monoGoldDark" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#ebe6d8" />
-            <stop offset="100%" stopColor="#d5cebd" />
-          </linearGradient>
-          <linearGradient id="monoGoldLight" x1="0%" y1="0%" x2="100%" y2="100%">
-            <stop offset="0%" stopColor="#2c1117" />
-            <stop offset="100%" stopColor="#180408" />
+            <stop offset="0%" stopColor="#eee8dc" />
+            <stop offset="100%" stopColor="#ded8c7" />
           </linearGradient>
           <filter id="monofolioShadow" x="-20%" y="-20%" width="140%" height="140%">
-            <feDropShadow dx="0" dy="8" stdDeviation="12" floodColor="#000000" floodOpacity="0.45" />
+            <feDropShadow dx="0" dy="6" stdDeviation="10" floodColor="#000000" floodOpacity="0.5" />
           </filter>
         </defs>
 
-        {/* Outer Frame with Smooth Corner Curvature */}
+        {/* Outer Frame with Smooth Corner Curvature (160x184 with rx=34) */}
         <rect
           width="160"
-          height="216"
-          rx="38"
+          height="184"
+          rx="34"
           className="fill-[url(#monoCardDarkGrad)]"
           filter="url(#monofolioShadow)"
         />
 
-        {/* Monogram Geometric Mark */}
+        {/* Authentic Monogram Geometric Mark */}
         <g className="fill-[url(#monoGoldDark)]">
-          {/* Main Prismatic Diamond Polygon */}
-          <polygon points="85,56 102,89 84,126 67,160 50,126" />
-          {/* Secondary Downward Triangle Inset */}
-          <polygon points="84,126 117,126 101,160" />
+          {/* Main Prismatic Chevron Polygon */}
+          <polygon points="80,38 98,74 80,110 62,146 44,110" />
+          {/* Secondary Inverted Triangle Facet */}
+          <polygon points="80,110 116,110 98,146" />
         </g>
       </svg>
     );
@@ -73,14 +64,16 @@ export const MonofolioLogo: React.FC<MonofolioLogoProps> = ({
 
   return (
     <svg
-      viewBox="0 0 256 256"
+      viewBox="0 0 100 120"
       width={size}
-      height={size}
+      height={typeof size === 'number' ? Math.round(size * 1.2) : size}
       className={`shrink-0 fill-current ${className}`}
       xmlns="http://www.w3.org/2000/svg"
     >
-      <polygon points="135,32 161,69 134,110 108,148 82,110" />
-      <polygon points="134,110 186,110 160,148" />
+      {/* Main Prismatic Chevron Polygon */}
+      <polygon points="50,6 68,42 50,78 32,114 14,78" />
+      {/* Secondary Inverted Triangle Facet */}
+      <polygon points="50,78 86,78 68,114" />
     </svg>
   );
 };
