@@ -8,7 +8,7 @@ import { itemsRepo } from '../db/repos';
 import { filesStorage } from '../storage/files';
 import { computeHash } from '../lib/hash';
 
-export const FloatingAddButton: React.FC = () => {
+export const FloatingAddButton: React.FC<{ isInline?: boolean }> = () => {
   const [activeModal, setActiveModal] = useState<'none' | 'note' | 'link' | 'pdf-processing'>('none');
   const [processingStatus, setProcessingStatus] = useState<string>('');
   
@@ -30,7 +30,7 @@ export const FloatingAddButton: React.FC = () => {
   const targetSubjectId = selectedSubjectId || (subjects.length > 0 ? subjects[0].id : '');
 
   // Handle Menu Option Selection from M3E Fab
-  const handleFabSelect = (optionId: 'pdf' | 'note' | 'link' | 'coach') => {
+  const handleFabSelect = (optionId: 'pdf' | 'note' | 'link' | 'library' | 'quiz' | 'settings') => {
     if (optionId === 'pdf') {
       fileInputRef.current?.click();
     } else if (optionId === 'note') {

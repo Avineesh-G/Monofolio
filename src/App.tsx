@@ -2,7 +2,6 @@ import React, { useEffect, useState, Suspense } from 'react';
 import { BrowserRouter, useRoutes } from 'react-router-dom';
 import { routes } from './app/routes';
 import { BottomNav } from './components/BottomNav';
-import { FloatingAddButton } from './components/FloatingAddButton';
 import { Skeleton } from './components/Skeleton';
 import { useLibraryStore } from './store/useLibraryStore';
 import { useSettingsStore } from './store/useSettingsStore';
@@ -145,10 +144,7 @@ export const App: React.FC = () => {
           <RouteRenderer />
         </main>
 
-        {/* Floating Add Item Button */}
-        <FloatingAddButton />
-
-        {/* Bottom Navigation Dock */}
+        {/* Mobile Bottom Dock (3 Tabs + Beside '+' FAB) */}
         <BottomNav />
       </div>
     </BrowserRouter>

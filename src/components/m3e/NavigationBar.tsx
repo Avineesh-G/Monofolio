@@ -1,66 +1,43 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import { Home, Compass, BookOpen, Layers, Brain, Settings, LucideIcon } from 'lucide-react';
+import { Home, Compass, Brain, LucideIcon } from 'lucide-react';
 import { useMotionPreset } from '../../theme/motion';
-import { db } from '../../db';
 
 export interface NavTabItem {
   id: string;
   path: string;
   label: string;
   icon: LucideIcon;
-  badge?: number | string;
 }
 
-export const NavigationBar: React.FC = () => {
+export interface NavigationBarProps {
+  trailingAction?: React.ReactNode;
+}
+
+export const NavigationBar: React.FC<NavigationBarProps> = ({ trailingAction }) => {
   const location = useLocation();
   const navigate = useNavigate();
   const motionPreset = useMotionPreset();
-  const [dueCardsCount, setDueCardsCount] = useState<number>(0);
-
-  useEffect(() => {
-    let isMounted = true;
-    const loadDueCount = async () => {
-      try {
-        const count = await db.flashcards.where('dueAt').belowOrEqual(Date.now()).count();
-        if (isMounted) setDueCardsCount(count);
-      } catch {
-        // Fallback silently if table not yet populated
-      }
-    };
-    loadDueCount();
-    return () => {
-      isMounted = false;
-    };
-  }, [location.pathname]);
 
   if (location.pathname.startsWith('/reader/') || location.pathname.startsWith('/dev/')) {
     return null;
   }
 
+  // 3 Core Mobile Destinations
   const tabs: NavTabItem[] = [
     { id: 'home', path: '/', label: 'Home', icon: Home },
     { id: 'shelf', path: '/shelf', label: 'Shelf', icon: Compass },
-    { id: 'library', path: '/library', label: 'Library', icon: BookOpen },
-    {
-      id: 'quiz',
-      path: '/quiz',
-      label: 'Quiz',
-      icon: Layers,
-      badge: dueCardsCount > 0 ? dueCardsCount : undefined,
-    },
     { id: 'coach', path: '/coach', label: 'Coach', icon: Brain },
-    { id: 'settings', path: '/settings', label: 'Settings', icon: Settings },
   ];
 
   return (
     <nav
-      className="fixed bottom-4 inset-x-0 z-30 flex justify-center px-4 pointer-events-none select-none"
-      aria-label="Bottom Navigation"
+      className="fixed bottom-4 inset-x-0 z-30 flex items-center justify-center gap-2.5 px-3 pointer-events-none select-none max-w-lg mx-auto"
+      aria-label="Mobile Bottom Navigation"
     >
-      {/* Floating Rounded Dock Container with distinct border & shadow */}
-      <div className="pointer-events-auto flex items-center justify-between gap-1 px-3 py-2 rounded-full bg-surface-container-high/95 dark:bg-[#1a121e]/95 backdrop-blur-2xl border border-outline-variant/30 dark:border-white/10 shadow-[0_12px_36px_rgba(0,0,0,0.55)] ring-1 ring-black/10 max-w-md w-full">
+      {/* 3-Tab Floating Pill Dock */}
+      <div className="pointer-events-auto flex items-center justify-between gap-1 px-3 py-1.5 rounded-full bg-surface-container-high/95 dark:bg-[#18111c]/95 backdrop-blur-3xl border border-outline-variant/30 dark:border-white/10 shadow-[0_16px_40px_rgba(0,0,0,0.65)] ring-1 ring-black/20 w-[240px] shrink-0">
         {tabs.map((tab) => {
           const Icon = tab.icon;
           const isActive =
@@ -72,39 +49,32 @@ export const NavigationBar: React.FC = () => {
             <button
               key={tab.id}
               onClick={() => navigate(tab.path)}
-              className="relative flex-1 py-1 px-1 rounded-full flex flex-col items-center justify-center transition-all duration-200 focus:outline-none cursor-pointer group"
+              className="relative flex-1 py-1 rounded-full flex flex-col items-center justify-center transition-all duration-200 focus:outline-none cursor-pointer group"
               aria-label={tab.label}
               aria-current={isActive ? 'page' : undefined}
             >
-              {/* Active Pill Capsule (Comfortably bounds the icon inside the dock) */}
-              <div className="relative flex items-center justify-center">
+              {/* Soft Refined M3 Filled Pill Indicator */}
+              <div className="relative w-12 h-7 flex items-center justify-center">
                 {isActive && (
                   <motion.div
-                    layoutId="m3e-active-nav-pill"
+                    layoutId="m3e-active-tab-pill"
                     transition={motionPreset.spatialDefault}
-                    className="absolute -inset-x-3 -inset-y-1 rounded-full bg-primary/20 dark:bg-primary/25 border border-primary/30 shadow-sm"
+                    className="absolute inset-0 rounded-full bg-primary/20 dark:bg-primary/25"
                   />
                 )}
 
-                <div className="relative z-10 flex items-center justify-center">
-                  <Icon
-                    className={`w-5 h-5 transition-all duration-200 ${
-                      isActive
-                        ? 'text-primary scale-110 stroke-[2.4px]'
-                        : 'text-on-surface-variant group-hover:text-on-surface stroke-[1.8px]'
-                    }`}
-                  />
-                  {tab.badge !== undefined && (
-                    <span className="absolute -top-1.5 -right-2.5 px-1.5 py-0.2 rounded-full bg-error text-on-error text-[9px] font-mono font-bold leading-tight shadow-sm">
-                      {tab.badge}
-                    </span>
-                  )}
-                </div>
+                <Icon
+                  className={`w-4.5 h-4.5 relative z-10 transition-all duration-200 ${
+                    isActive
+                      ? 'text-primary scale-105 stroke-[2.4px]'
+                      : 'text-on-surface-variant group-hover:text-on-surface stroke-[1.8px]'
+                  }`}
+                />
               </div>
 
               {/* Tab Label */}
               <span
-                className={`relative z-10 text-[10px] font-bold mt-1 tracking-tight transition-all duration-200 ${
+                className={`relative z-10 text-[10px] font-bold mt-0.5 tracking-tight transition-all duration-200 ${
                   isActive
                     ? 'text-primary font-extrabold opacity-100'
                     : 'text-on-surface-variant group-hover:text-on-surface opacity-75'
@@ -116,6 +86,13 @@ export const NavigationBar: React.FC = () => {
           );
         })}
       </div>
+
+      {/* '+' Action Button Positioned Directly Beside the Dock */}
+      {trailingAction && (
+        <div className="pointer-events-auto shrink-0">
+          {trailingAction}
+        </div>
+      )}
     </nav>
   );
 };
