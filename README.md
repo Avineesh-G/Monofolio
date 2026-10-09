@@ -1,118 +1,187 @@
-# Monofolio 📚⚡
+# Monofolio
 
-> **Private Study Vault & Blunt AI Coach for Android**  
-> Built with React 18, TypeScript (Strict), Vite, Dexie (IndexedDB), Capacitor, Framer Motion (`LazyMotion`), and Tailwind CSS.
-
----
-
-## 🌟 Key Highlights
-
-- **Organized Hierarchy**: Strict hierarchy (**Semester → Subject → Topic**) designed for academic engineering & university exams.
-- **Local-First & Zero Cloud Leakage**:
-  - Metadata, topics, Leitner flashcards, and notes stored in **Dexie (IndexedDB)**.
-  - Document binaries stored in **Capacitor Filesystem** (never stored in `localStorage` or Blobs in state).
-  - Document text leaves the device **only** when querying the Groq AI provider for an analysis.
-- **Blunt AI Coach (Groq Free-Tier Optimized)**:
-  - Multi-stage **Map-Reduce** analysis pipeline with background chunking and token rate limiter with exponential backoff.
-  - Generates concept importance rankings (1 to 5), weak spots, learning progression, daily study plan, and reality checks.
-  - **Zero-API Vault Caching**: Cached in Dexie by `fileHash + promptVersion`. Re-opening any previously analyzed document is instant.
-- **Spaced Repetition & Flashcards**:
-  - 3D flip cards with 60fps swipe gestures (Swipe Right to Advance, Swipe Left to Reset to Box 0).
-  - Leitner box intervals (1 day, 3 days, 7 days, 14 days, 30 days) and dynamic Topic Mastery updates.
-- **Hardware-Accelerated 60FPS Performance**:
-  - Virtualized lists (`@tanstack/react-virtual`) handling 500+ items at steady 60fps.
-  - Dedicated **Web Workers** for PDF text extraction, thumbnail generation, and in-memory search queries.
-  - Lazy PDF reader with canvas bitmap memory recycling (`IntersectionObserver`).
-  - **Performance Mode**: 1-tap toggle disabling all blurs, shadows, and non-essential transitions for lower-end Android phones.
-- **Vault Security & App Lock**:
-  - Cold-start & background timeout PIN lock gate.
-  - Full JSON backup export and import.
+> **Private Academic Vault, Syllabus Manager & Resilient AI Study Coach for Android and Web**  
+> Built with React 18, TypeScript (Strict), Vite 6, Dexie (IndexedDB), Supabase (PostgreSQL), Capacitor 6, Framer Motion, and Material Design 3 Expressive.
 
 ---
 
-## 📱 Tech Stack & Dependencies
+## Architecture & System Overview
 
-| Layer | Technology |
+Monofolio is an offline-first academic management platform designed for engineering and university curricula. It combines client-side storage, PDF text extraction, and spaced repetition with cloud database synchronization and multi-model AI syllabus analysis.
+
+```
++-------------------------------------------------------------------------+
+|                              Monofolio App                              |
++-------------------------------------------------------------------------+
+|  Presentation Layer:                                                    |
+|  - Material Design 3 Expressive Design System                           |
+|  - Google Sans Flex Typography                                          |
+|  - Framer Motion Hardware-Accelerated Gestures                          |
+|  - Mobile Bottom Dock with Speed Dial Action Sheet                      |
++-------------------------------------------------------------------------+
+|  Offline-First Client Engine:                                           |
+|  - Dexie IndexedDB (Local cache, compound indexing)                     |
+|  - Capacitor Filesystem (Secure binary blob management)                 |
+|  - Dedicated Web Workers (PDF text extraction, fuzzy search indexing)   |
++-------------------------------------------------------------------------+
+|  AI Intelligence Layer:                                                 |
+|  - Resilient Groq Multi-Model Cascading Engine                          |
+|  - Primary: Llama 3.3 70B Versatile                                    |
+|  - Fallback 1: Llama 3.1 8B Instant (Spike/Rate-Limit Immune)            |
+|  - Fallback 2: Mixtral 8x7B | Fallback 3: Gemma 2 9B                   |
++-------------------------------------------------------------------------+
+|  Cloud & Identity Layer:                                                |
+|  - Supabase PostgreSQL Database (Row-Level Security)                    |
+|  - Google OAuth & Email/Password Authentication                         |
+|  - Bi-directional Real-time Cloud Sync                                 |
++-------------------------------------------------------------------------+
+```
+
+---
+
+## Core Capabilities
+
+### 1. Academic Hierarchy & Syllabus Management
+- Strict relational hierarchy (**Semester -> Subject -> Topic -> Materials**) structured for university exams.
+- Topic Mastery indexing computed dynamically from Leitner flashcard review accuracy.
+- Support for multiple academic semesters with active term prioritization.
+
+### 2. High-Performance Reader & Document Vault
+- Isolated **Web Worker PDF Engine** extracting selectable text and rendering low-memory thumbnails without UI thread block.
+- Virtualized multi-page PDF reader utilizing canvas bitmap recycling and `IntersectionObserver`.
+- Support for PDFs, Markdown study notes, and annotated web links.
+
+### 3. Resilient AI Study Coach & Multi-Model Cascading
+- **Multi-Stage Map-Reduce Analysis**: Breaks large lecture slides into structured concept hierarchies, examiner blindspots, and recovery action plans.
+- **Failover & Spike Protection**: Automatically cascades across model tiers (`llama-3.3-70b-versatile` -> `llama-3.1-8b-instant` -> `mixtral-8x7b-32768` -> `gemma2-9b-it`) during rate limits (429) or cloud capacity spikes (503).
+- **Zero-Token Vault Caching**: Analysis outputs are hashed and indexed locally (`fileHash + promptVersion`) for zero-latency reloading.
+
+### 4. Leitner 5-Box Spaced Repetition Engine
+- 3D flip review cards with directional swipe gestures.
+- Automated scheduling intervals (Box 0: Immediate, Box 1: 1 Day, Box 2: 3 Days, Box 3: 7 Days, Box 4: 14 Days, Box 5: 30 Days).
+- AI-generated high-yield active recall flashcard generation directly from study documents.
+
+### 5. Material Design 3 Expressive UI
+- Framed Monofolio geometric monogram card emblem.
+- Dynamic color roles (Primary, Secondary, Tertiary, Surface Containers) with dark and light theme compliance.
+- Mobile bottom dock with separate speed dial action trigger.
+- **Performance Mode**: 1-tap toggle disabling hardware-intensive blurs and shadows for battery savings on mobile chipsets.
+
+### 6. Security & Authentication
+- Mandatory authentication gate powered by Supabase Auth (Google OAuth and Email/Password).
+- Row-Level Security (RLS) policies enforcing single-tenant data isolation per authenticated user ID.
+- Local cold-start and idle background PIN lock gate.
+- Complete JSON database backup export and restoration tools.
+
+---
+
+## Technical Stack
+
+| Domain | Technologies |
 |---|---|
-| Framework | React 18 + TypeScript (Strict) + Vite 6 |
-| Styling | Tailwind CSS + CSS Variable Theme Tokens |
-| Motion | Framer Motion (`LazyMotion` + `domAnimation` + `m.*`) |
-| Local Database | Dexie (IndexedDB) with multi-field compound indexes |
-| File Storage | Capacitor Filesystem (`@capacitor/filesystem`) |
-| PDF Engine | `pdfjs-dist` (Worker-isolated text extraction & thumbnailing) |
-| List Virtualizer | `@tanstack/react-virtual` |
-| State Management | Zustand with granular selectors |
-| AI Provider | Groq API (`llama-3.3-70b-versatile` / `llama-3.1-8b-instant`) |
+| **Core Framework** | React 18, TypeScript (Strict Mode), Vite 6 |
+| **Mobile Runtime** | Capacitor 6 (`@capacitor/android`, `@capacitor/filesystem`, `@capacitor/preferences`) |
+| **Styling & Design** | Tailwind CSS, Material Design 3 Tokens, Google Sans Flex |
+| **Animation Engine** | Framer Motion (`LazyMotion`, `domAnimation`) |
+| **Client Storage** | Dexie.js (IndexedDB wrapper with multi-field compound indexes) |
+| **Cloud Backend** | Supabase (PostgreSQL, GoTrue Auth, PostgREST) |
+| **AI Inference** | Groq Cloud API (Llama 3.3 70B, Llama 3.1 8B, Mixtral 8x7B) |
+| **Document Processing** | `pdfjs-dist` (Dedicated background web workers) |
+| **List Virtualization** | `@tanstack/react-virtual` |
+| **State Management** | Zustand (Granular atomic stores) |
 
 ---
 
-## 🚀 Getting Started
+## Environment Configuration
 
-### 1. Local Development
+Create a `.env` file in the root directory:
 
+```env
+# Supabase Configuration
+VITE_SUPABASE_URL=https://<your-project-ref>.supabase.co
+VITE_SUPABASE_ANON_KEY=<your-supabase-publishable-key>
+
+# Optional Default AI Gateway (Can also be configured inside App Settings)
+VITE_GROQ_API_KEY=<your-groq-api-key>
+```
+
+---
+
+## Database Setup (PostgreSQL Schema)
+
+Execute the PostgreSQL schema located at `supabase/schema.sql` in the Supabase SQL Editor:
+
+```sql
+-- Creates the required tables with Row Level Security:
+-- 1. profiles
+-- 2. semesters
+-- 3. subjects
+-- 4. topics
+-- 5. items (documents, notes, links)
+-- 6. flashcards (Leitner SRS cards)
+-- 7. coach_analyses (AI study plans and concept rankings)
+```
+
+---
+
+## Development & Build Instructions
+
+### Prerequisites
+- Node.js 18+ and npm
+- Java JDK 17+ and Android SDK (for native Android builds)
+
+### 1. Install Dependencies
 ```bash
-# Navigate to project folder
-cd "C:\Users\avine\OneDrive\Desktop\My-Projects\AVI DOCS"
+npm install
+```
 
-# Start Vite dev server
+### 2. Start Local Development Server
+```bash
 npm run dev
 ```
+Navigate to `http://localhost:5173` to preview the web and mobile interfaces.
 
-Open [http://localhost:5173/](http://localhost:5173/) in your browser or mobile preview.
-
-### 2. Building for Production Web
-
+### 3. Production Web Bundle
 ```bash
 npm run build
 ```
+Optimized assets will be compiled into the `dist/` directory.
 
-The production output will be generated in `/dist` (Entry bundle < 25 KB gzipped).
-
-### 3. Building the Android Release APK (Capacitor)
-
+### 4. Build Native Android APK
 ```bash
-# 1. Build production bundle
-npm run build
-
-# 2. Add Android platform (first time only)
-npx cap add android
-
-# 3. Sync web assets with native Android project
+# Sync web bundle to Android native assets
 npx cap sync android
 
-# 4. Open in Android Studio
-npx cap open android
+# Compile debug APK via Gradle wrapper
+cd android && gradlew.bat assembleDebug && cd ..
+
+# Output location:
+# android/app/build/outputs/apk/debug/app-debug.apk
 ```
 
-In Android Studio:
-- Select **Build → Build Bundle(s) / APK(s) → Build APK(s)**.
-- Or create a signed release APK via **Build → Generate Signed Bundle / APK**.
+---
+
+## Project Structure
+
+```
+├── android/                   # Native Android Capacitor wrapper project
+├── src/
+│   ├── ai/                    # Groq multi-model failover engine, chunkers & prompts
+│   ├── app/                   # Application routing and lazy views
+│   ├── components/            # Reusable UI primitives (M3E buttons, cards, docks)
+│   ├── db/                    # Dexie IndexedDB schemas, repositories & cloud sync
+│   ├── features/              # Feature modules (Auth, Home, Shelf, Library, Quiz, Coach, Settings)
+│   ├── lib/                   # Supabase client, hash generators, utilities
+│   ├── storage/               # Capacitor filesystem file managers
+│   ├── store/                 # Zustand stores (Auth, Library, Settings, PIN Lock)
+│   ├── theme/                 # Material 3 color palettes, shapes, motion tokens
+│   └── workers/               # PDF processing & fuzzy search web workers
+├── supabase/                  # Database migration scripts & PostgreSQL schema
+└── package.json               # Dependencies and build scripts
+```
 
 ---
 
-## 📊 Remote Performance Profiling (Android)
+## License
 
-To profile on a real Android device:
-1. Enable **USB Debugging** in Android Developer Options and connect your phone via USB.
-2. Open Chrome on your desktop and navigate to `chrome://inspect/#devices`.
-3. Locate **Monofolio** under Remote Target and click **Inspect**.
-4. Open the **Performance** tab and record a 10-second trace while:
-   - Rapidly scrolling the 500-item virtualized Library.
-   - Switching between tabs.
-   - Scrolling through a 200-page PDF in the Lazy Reader.
-   - Swiping Leitner flashcards.
-5. Verify: zero long tasks (> 50ms) during interaction and steady 60fps frame rate.
-
----
-
-## ✅ Final Master Verification Checklist (Section 12)
-
-- [x] **500+ items in Library**: Smooth 60fps virtualized scrolling with instant search worker queries.
-- [x] **200-page PDF**: Opens fast, smooth lazy rendering with off-screen canvas recycling keeping memory flat.
-- [x] **Coach on 50+ page PDF**: Real-time progress updates, cancelable, and cached instantly on repeat.
-- [x] **Offline / Airplane mode**: Everything except initial AI Coach/Quiz generation works 100% offline.
-- [x] **Rapid tab switching**: Zero frame hitching, GPU composited layer for bottom nav.
-- [x] **App background / foreground**: Automatic PIN lock timeout triggers without crash.
-- [x] **Performance Mode**: 1-tap toggle disables all blurs/shadows while retaining clean aesthetic.
-- [x] **Small-screen mobile layout**: Generous 48dp touch targets with safe-area insets.
-- [x] **Backup export, wipe, and import**: Verified complete round-trip database restoration.
+This project is proprietary and maintained for academic study management.
