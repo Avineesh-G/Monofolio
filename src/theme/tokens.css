@@ -38,19 +38,19 @@
   --md-sys-color-error-container: #8c1d18;
   --md-sys-color-on-error-container: #f9dedc;
 
-  --md-sys-color-background: #121016;
+  --md-sys-color-background: #141218;
   --md-sys-color-on-background: #e6e0e9;
-  --md-sys-color-surface: #121016;
+  --md-sys-color-surface: #141218;
   --md-sys-color-on-surface: #e6e0e9;
   --md-sys-color-on-surface-variant: #cac4d0;
 
-  --md-sys-color-surface-dim: #121016;
+  --md-sys-color-surface-dim: #141218;
   --md-sys-color-surface-bright: #3b383e;
-  --md-sys-color-surface-container-lowest: #0c0a0f;
-  --md-sys-color-surface-container-low: #1a1820;
-  --md-sys-color-surface-container: #201e26;
-  --md-sys-color-surface-container-high: #2b2832;
-  --md-sys-color-surface-container-highest: #36333e;
+  --md-sys-color-surface-container-lowest: #0f0d13;
+  --md-sys-color-surface-container-low: #1d1b20;
+  --md-sys-color-surface-container: #211f26;
+  --md-sys-color-surface-container-high: #2b2930;
+  --md-sys-color-surface-container-highest: #36343b;
 
   --md-sys-color-outline: #938f99;
   --md-sys-color-outline-variant: #49454f;
@@ -59,10 +59,9 @@
   --md-sys-color-inverse-primary: #6750a4;
 
   /* Expressive Glow & Tonal tokens */
-  --color-accent-glow: rgba(208, 188, 255, 0.25);
-  --color-tertiary-glow: rgba(239, 184, 200, 0.22);
-  --color-glass-border: rgba(255, 255, 255, 0.08);
-  --color-glass-bg: rgba(33, 30, 39, 0.72);
+  --color-accent-glow: rgba(208, 188, 255, 0.2);
+  --color-tertiary-glow: rgba(239, 184, 200, 0.18);
+  --color-glass-bg: rgba(33, 31, 38, 0.85);
 
   /* Backward compatible tokens */
   --color-bg-primary: var(--md-sys-color-surface);
@@ -80,8 +79,8 @@
   --color-text-muted: var(--md-sys-color-outline);
   --color-text-inverse: var(--md-sys-color-inverse-on-surface);
 
-  --color-border-subtle: var(--md-sys-color-outline-variant);
-  --color-border-medium: var(--md-sys-color-outline);
+  --color-border-subtle: transparent;
+  --color-border-medium: rgba(255, 255, 255, 0.04);
   --color-border-accent: var(--md-sys-color-primary);
 
   --color-success: #7cd992;
@@ -110,13 +109,12 @@ html, body, #root {
   height: 100dvh;
   margin: 0;
   padding: 0;
-  overflow: hidden;
   background-color: var(--md-sys-color-surface);
   color: var(--md-sys-color-on-surface);
 }
 
 body {
-  font-family: 'Plus Jakarta Sans', 'Outfit', 'Google Sans Flex', 'Google Sans', system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+  font-family: 'Plus Jakarta Sans', 'Google Sans Flex', 'Google Sans', 'Outfit', system-ui, -apple-system, sans-serif;
   text-rendering: optimizeLegibility;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
@@ -133,20 +131,19 @@ button, a, input, select, textarea, [role=button] {
   overscroll-behavior-y: contain;
 }
 
-/* Expressive M3 utilities */
+/* Expressive M3 utilities without harsh white borders */
 .m3-glass {
-  background: rgba(32, 30, 38, 0.75);
-  backdrop-filter: blur(16px);
-  -webkit-backdrop-filter: blur(16px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
+  background: rgba(33, 31, 38, 0.82);
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
 }
 
 .m3-glass-elevated {
-  background: rgba(43, 40, 50, 0.85);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.12);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.35);
+  background: rgba(43, 41, 48, 0.92);
+  backdrop-filter: blur(24px);
+  -webkit-backdrop-filter: blur(24px);
+  box-shadow: 0 8px 32px rgba(0, 0, 0, 0.38);
 }
 
 .m3-pill-tab {
@@ -166,7 +163,7 @@ button, a, input, select, textarea, [role=button] {
   background: transparent;
 }
 ::-webkit-scrollbar-thumb {
-  background: var(--md-sys-color-outline-variant);
+  background: rgba(255, 255, 255, 0.12);
   border-radius: var(--shape-full);
 }
 

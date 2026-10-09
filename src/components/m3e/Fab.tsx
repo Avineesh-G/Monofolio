@@ -115,7 +115,7 @@ export const Fab: React.FC<FabProps> = ({ onSelectOption }) => {
                     onClick={() => handleSelect(opt.id)}
                     className="flex items-center gap-3 group focus:outline-none cursor-pointer"
                   >
-                    <span className="px-3.5 py-1.5 rounded-full m3-glass text-on-surface text-xs font-bold shadow-lg border border-white/10 tracking-tight">
+                    <span className="px-3.5 py-1.5 rounded-full bg-surface-container-highest/95 backdrop-blur-md text-on-surface text-xs font-bold shadow-lg tracking-tight">
                       {opt.label}
                     </span>
 
@@ -142,7 +142,7 @@ export const Fab: React.FC<FabProps> = ({ onSelectOption }) => {
           whileTap={motionPreset.tapFeedback.whileTap}
           transition={motionPreset.tapFeedback.transition}
           onClick={() => setIsOpen(!isOpen)}
-          className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-primary to-primary-container text-on-primary shadow-2xl border border-white/20 flex items-center justify-center pointer-events-auto cursor-pointer focus:outline-none active:scale-95 transition-transform"
+          className="w-14 h-14 rounded-2xl bg-gradient-to-tr from-primary to-primary-container text-on-primary shadow-2xl flex items-center justify-center pointer-events-auto cursor-pointer focus:outline-none active:scale-95 transition-transform"
           aria-label={isOpen ? 'Close Quick Menu' : 'Open Quick Menu'}
         >
           <motion.div

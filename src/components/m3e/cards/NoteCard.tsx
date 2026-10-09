@@ -29,7 +29,7 @@ export const NoteCard: React.FC<NoteCardProps> = ({
       whileTap={motionPreset.tapFeedback.whileTap}
       transition={motionPreset.tapFeedback.transition}
       onClick={onClick}
-      className={`p-4 rounded-[22px] bg-surface-container/90 border border-white/10 m3-glass flex flex-col justify-between cursor-pointer shadow-sm hover:border-white/20 hover:bg-surface-container-high transition-all ${className}`}
+      className={`p-4 rounded-[22px] bg-surface-container flex flex-col justify-between cursor-pointer shadow-md hover:bg-surface-container-high active:scale-98 transition-all ${className}`}
     >
       <div className="space-y-2">
         <div className="flex items-center justify-between gap-2">

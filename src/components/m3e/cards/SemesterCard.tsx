@@ -32,18 +32,18 @@ export const SemesterCard: React.FC<SemesterCardProps> = ({
       whileTap={motionPreset.tapFeedback.whileTap}
       transition={motionPreset.tapFeedback.transition}
       onClick={onClick}
-      className={`p-4 rounded-[24px] cursor-pointer flex items-center justify-between gap-3 shadow-md transition-all ${
+      className={`p-4 rounded-[24px] cursor-pointer flex items-center justify-between gap-3 shadow-md active:scale-98 transition-all ${
         isActive
-          ? 'bg-primary-container/70 border-2 border-primary text-on-primary-container'
-          : 'bg-surface-container/90 border border-white/10 m3-glass hover:bg-surface-container-high'
+          ? 'bg-primary-container text-on-primary-container shadow-lg'
+          : 'bg-surface-container hover:bg-surface-container-high'
       } ${className}`}
     >
       <div className="flex items-center gap-3.5 min-w-0 flex-1">
         <ShapeBadge
           shape={shape}
           size={44}
-          shapeFill={isActive ? 'rgba(208, 188, 255, 0.3)' : 'rgba(255, 255, 255, 0.08)'}
-          icon={<Layers className="w-5 h-5 text-primary stroke-[2.2px]" />}
+          shapeFill={isActive ? 'rgba(208, 188, 255, 0.35)' : 'rgba(255, 255, 255, 0.08)'}
+          icon={<Layers className={`w-5 h-5 stroke-[2.2px] ${isActive ? 'text-on-primary-container' : 'text-primary'}`} />}
         />
 
         <div className="min-w-0 flex-1 space-y-1">

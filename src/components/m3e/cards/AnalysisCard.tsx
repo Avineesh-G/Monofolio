@@ -38,14 +38,13 @@ export const AnalysisCard: React.FC<AnalysisCardProps> = ({
 }) => {
   const motionPreset = useMotionPreset();
 
-  // If rendered as diagnostic overview in Coach screen with items
   if (items || realityVerdict || title) {
     return (
       <motion.div
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         transition={motionPreset.spatialDefault}
-        className={`p-5 rounded-[26px] bg-surface-container/90 border border-white/10 m3-glass-elevated shadow-xl space-y-4 ${className}`}
+        className={`p-5 rounded-[26px] bg-surface-container-high shadow-xl space-y-4 ${className}`}
       >
         <div className="flex items-center justify-between">
           <div className="flex items-center gap-2.5">
@@ -70,7 +69,7 @@ export const AnalysisCard: React.FC<AnalysisCardProps> = ({
         </div>
 
         {realityVerdict && (
-          <div className="p-3.5 rounded-2xl bg-error/15 border border-error/30 text-xs text-error font-medium leading-relaxed">
+          <div className="p-3.5 rounded-2xl bg-error-container/60 text-xs text-on-error-container font-medium leading-relaxed shadow-sm">
             <strong className="block text-sm font-bold pb-1 uppercase tracking-wide">Reality Verdict:</strong>
             {realityVerdict}
           </div>
@@ -81,7 +80,7 @@ export const AnalysisCard: React.FC<AnalysisCardProps> = ({
             {items.map((item, idx) => (
               <div
                 key={idx}
-                className="flex items-start gap-2.5 text-xs text-on-surface leading-relaxed p-2.5 rounded-xl bg-surface-container-high/60 border border-white/5"
+                className="flex items-start gap-2.5 text-xs text-on-surface leading-relaxed p-3 rounded-xl bg-surface-container-highest shadow-sm"
               >
                 <span className="w-5 h-5 rounded-full bg-primary/20 text-primary font-mono font-bold text-[11px] flex items-center justify-center shrink-0 mt-0.5">
                   {idx + 1}
@@ -95,14 +94,13 @@ export const AnalysisCard: React.FC<AnalysisCardProps> = ({
     );
   }
 
-  // Summary Card representation
   const isBlunt = mode === 'blunt';
   return (
     <motion.div
       whileTap={onClick ? motionPreset.tapFeedback.whileTap : undefined}
       transition={motionPreset.tapFeedback.transition}
       onClick={onClick}
-      className={`p-4 rounded-[24px] border border-white/10 bg-surface-container/80 backdrop-blur-md shadow-md cursor-pointer select-none space-y-3 hover:border-primary/40 hover:bg-surface-container-high transition-all ${className}`}
+      className={`p-4 rounded-[24px] bg-surface-container shadow-md cursor-pointer select-none space-y-3 hover:bg-surface-container-high active:scale-98 transition-all ${className}`}
     >
       <div className="flex items-start justify-between gap-3">
         <div className="flex items-center gap-3 min-w-0 flex-1">
@@ -165,7 +163,7 @@ export const AnalysisCard: React.FC<AnalysisCardProps> = ({
         )}
       </div>
 
-      <div className="flex items-center justify-between pt-1 text-xs text-on-surface-variant border-t border-white/5">
+      <div className="flex items-center justify-between pt-2 text-xs text-on-surface-variant">
         <div className="flex items-center gap-4">
           <span className="flex items-center gap-1">
             <ShieldAlert className="w-3.5 h-3.5 text-error" />

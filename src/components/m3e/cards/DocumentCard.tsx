@@ -36,17 +36,17 @@ export const DocumentCard: React.FC<DocumentCardProps> = React.memo(({
     pdf: {
       icon: <FileText className="w-4 h-4 text-primary stroke-[2.2px]" />,
       shape: 'squircle',
-      containerBg: 'rgba(208, 188, 255, 0.15)',
+      containerBg: 'rgba(208, 188, 255, 0.18)',
     },
     note: {
       icon: <StickyNote className="w-4 h-4 text-secondary stroke-[2.2px]" />,
       shape: 'flower',
-      containerBg: 'rgba(204, 194, 220, 0.15)',
+      containerBg: 'rgba(204, 194, 220, 0.18)',
     },
     link: {
       icon: <Link2 className="w-4 h-4 text-tertiary stroke-[2.2px]" />,
       shape: 'diamond',
-      containerBg: 'rgba(239, 184, 200, 0.15)',
+      containerBg: 'rgba(239, 184, 200, 0.18)',
     },
   };
 
@@ -57,12 +57,12 @@ export const DocumentCard: React.FC<DocumentCardProps> = React.memo(({
       whileTap={motionPreset.tapFeedback.whileTap}
       transition={motionPreset.tapFeedback.transition}
       onClick={onClick}
-      className={`p-3.5 rounded-[20px] border border-white/10 bg-surface-container/80 backdrop-blur-md flex items-center justify-between gap-3 cursor-pointer select-none shadow-sm hover:border-primary/40 hover:bg-surface-container-high transition-all ${className}`}
+      className={`p-3.5 rounded-[22px] bg-surface-container backdrop-blur-md flex items-center justify-between gap-3 cursor-pointer select-none shadow-md hover:bg-surface-container-high active:scale-98 transition-all ${className}`}
     >
       <div className="flex items-center gap-3 min-w-0 flex-1">
         <ShapeBadge
           shape={config.shape}
-          size={40}
+          size={42}
           shapeFill={config.containerBg}
           icon={config.icon}
         />

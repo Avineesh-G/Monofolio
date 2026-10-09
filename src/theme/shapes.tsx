@@ -1,6 +1,6 @@
-﻿import React from 'react';
+import React from 'react';
 
-export const NUM_SHAPE_POINTS = 96;
+export const NUM_SHAPE_POINTS = 128;
 
 export type ShapeName =
   | 'circle'
@@ -55,7 +55,7 @@ export interface Point {
 }
 
 /**
- * Generate 96 sampled points for a given shape in a 0..100 bounding box
+ * Generate 128 mathematically precise points for each M3 shape in a 0..100 bounding box
  */
 function generateRawPoints(name: ShapeName): Point[] {
   const points: Point[] = [];
@@ -75,16 +75,15 @@ function generateRawPoints(name: ShapeName): Point[] {
         break;
       }
       case 'squircle': {
-        // Superellipse: |x|^4 + |y|^4 = R^4
+        // Superellipse: |x/a|^n + |y/b|^n = 1 (n=4 for smooth iOS/M3 squircle)
         const ct = Math.cos(theta);
         const st = Math.sin(theta);
-        const r = 46 / Math.pow(Math.pow(Math.abs(ct), 3.8) + Math.pow(Math.abs(st), 3.8), 1 / 3.8);
+        const r = 46 / Math.pow(Math.pow(Math.abs(ct), 4) + Math.pow(Math.abs(st), 4), 0.25);
         x = cx + r * ct;
         y = cy + r * st;
         break;
       }
       case 'pill': {
-        // Oval / stretched pill
         const a = 46;
         const b = 34;
         x = cx + a * Math.cos(theta);
@@ -140,13 +139,13 @@ function generateRawPoints(name: ShapeName): Point[] {
         break;
       }
       case 'softBurst': {
-        const r = 38 + 9 * Math.cos(10 * theta);
+        const r = 39 + 8 * Math.cos(10 * theta);
         x = cx + r * Math.cos(theta);
         y = cy + r * Math.sin(theta);
         break;
       }
       case 'burst': {
-        const r = 36 + 11.5 * Math.cos(12 * theta);
+        const r = 37 + 10 * Math.cos(12 * theta);
         x = cx + r * Math.cos(theta);
         y = cy + r * Math.sin(theta);
         break;
@@ -203,14 +202,11 @@ function generateRawPoints(name: ShapeName): Point[] {
         break;
       }
       case 'arch': {
-        // Upper half circle, lower half rounded rectangle
         const normAngle = ((theta + Math.PI / 2) % (2 * Math.PI) + 2 * Math.PI) % (2 * Math.PI);
         if (normAngle <= Math.PI) {
-          // Top arch
           x = cx + 44 * Math.sin(normAngle - Math.PI / 2);
           y = 50 - 44 * Math.cos(normAngle - Math.PI / 2);
         } else {
-          // Bottom rect corners
           const tBottom = (normAngle - Math.PI) / Math.PI;
           if (tBottom < 0.5) {
             x = 50 + 44 - tBottom * 88;
@@ -231,7 +227,6 @@ function generateRawPoints(name: ShapeName): Point[] {
         break;
       }
       case 'gem': {
-        // 8-sided faceted gem
         const n = 8;
         const r0 = 45;
         const angleMod = (theta % ((2 * Math.PI) / n) + (2 * Math.PI) / n) % ((2 * Math.PI) / n);
@@ -255,7 +250,7 @@ function generateRawPoints(name: ShapeName): Point[] {
 }
 
 /**
- * Convert point coordinates array [x0, y0, x1, y1, ...] to smooth SVG Path
+ * Convert point coordinates array [x0, y0, x1, y1, ...] to smooth SVG Path using Catmull-Rom cubic bezier
  */
 export function pointsToSvgPath(points: number[]): string {
   const n = points.length / 2;
@@ -272,7 +267,7 @@ export function pointsToSvgPath(points: number[]): string {
     const x1 = getX(i);
     const y1 = getY(i);
     const x2 = getX(i + 1);
-    const y2 = getY(i + 2);
+    const y2 = getY(i + 1); // Fixed index
     const x3 = getX(i + 2);
     const y3 = getY(i + 2);
 

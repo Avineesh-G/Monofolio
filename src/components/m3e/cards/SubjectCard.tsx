@@ -44,7 +44,7 @@ export const SubjectCard: React.FC<SubjectCardProps> = ({
       whileTap={motionPreset.tapFeedback.whileTap}
       transition={motionPreset.tapFeedback.transition}
       onClick={onClick}
-      className={`p-4 rounded-[24px] bg-surface-container/90 border border-white/10 m3-glass cursor-pointer flex items-center justify-between gap-3 shadow-md hover:border-white/20 hover:bg-surface-container-high transition-all ${className}`}
+      className={`p-4 rounded-[24px] bg-surface-container cursor-pointer flex items-center justify-between gap-3 shadow-md hover:bg-surface-container-high active:scale-98 transition-all ${className}`}
     >
       <div className="flex items-center gap-3.5 min-w-0 flex-1">
         <ShapeBadge

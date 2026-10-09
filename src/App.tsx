@@ -111,7 +111,7 @@ export const App: React.FC = () => {
               setPinError(false);
             }}
             placeholder="Enter PIN"
-            className="w-full text-center tracking-widest text-lg px-4 py-3 rounded-xl bg-bg-tertiary border border-border-subtle text-text-primary focus:outline-none focus:border-accent"
+            className="w-full text-center tracking-widest text-lg px-4 py-3 rounded-xl bg-surface-container-high border-none text-text-primary focus:outline-none focus:ring-2 focus:ring-accent"
             autoFocus
           />
           {pinError && <p className="text-xs text-rose-400">Incorrect PIN. Try again.</p>}
@@ -128,9 +128,9 @@ export const App: React.FC = () => {
 
   return (
     <BrowserRouter>
-      <div className="h-full w-full flex flex-col bg-bg overflow-hidden relative select-none">
+      <div className="h-full w-full flex flex-col bg-surface text-on-surface overflow-hidden relative">
         {/* Dev FPS Meter & Perf Indicator */}
-        <div className="fixed top-2 right-3 z-50 pointer-events-none flex items-center gap-1.5 px-2 py-0.5 rounded-full bg-black/70 border border-white/10 text-[10px] font-mono text-emerald-400">
+        <div className="fixed top-2 right-3 z-50 pointer-events-none flex items-center gap-1.5 px-2.5 py-1 rounded-full bg-black/60 backdrop-blur-md text-[10px] font-mono text-emerald-400 shadow-md">
           <span className="inline-block w-1.5 h-1.5 rounded-full bg-emerald-400 animate-pulse" />
           <span>{fps} FPS</span>
           {performanceMode && (
@@ -140,15 +140,15 @@ export const App: React.FC = () => {
           )}
         </div>
 
-        {/* Main Content Area */}
-        <main className="flex-1 overflow-hidden relative">
+        {/* Main Content Area - Scrollable with fluid momentum */}
+        <main className="flex-1 overflow-y-auto scroll-container relative overscroll-y-contain">
           <RouteRenderer />
         </main>
 
         {/* Floating Add Item Button */}
         <FloatingAddButton />
 
-        {/* Bottom Navigation */}
+        {/* Bottom Navigation Dock */}
         <BottomNav />
       </div>
     </BrowserRouter>

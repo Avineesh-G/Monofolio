@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { db, Document, Subject, Flashcard } from '../../db';
 import { HeroCard, ContinueCard, StatCard, WeakTopicCard } from '../../components/m3e/cards';
 import { TopAppBar } from '../../components/m3e';
-import { Sparkles, BookOpen, Layers, Award } from 'lucide-react';
+import { Sparkles, BookOpen, Layers, Award, Compass, ArrowUpRight } from 'lucide-react';
 
 export interface HomeScreenProps {
   onNavigateTab?: (tab: 'home' | 'shelf' | 'library' | 'quiz' | 'coach' | 'links' | 'settings') => void;
@@ -19,7 +19,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   const [recentDoc, setRecentDoc] = useState<Document | null>(null);
   const [recentDocSubject, setRecentDocSubject] = useState<string>('');
   const [totalDocsCount, setTotalDocsCount] = useState<number>(0);
-  const [totalFlashcardsCount, setTotalFlashcardsCount] = useState<number>(0);
+  // flashcards count state removed
   const [overallMastery, setOverallMastery] = useState<number>(72);
   const [weakTopics, setWeakTopics] = useState<{ topicName: string; subjectName: string; mastery: number }[]>([]);
 
@@ -33,8 +33,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
         const totalDocs = await db.documents.count();
         setTotalDocsCount(totalDocs);
 
-        const totalCards = await db.flashcards.count();
-        setTotalFlashcardsCount(totalCards);
+        // total cards count omitted
 
         const docs = await db.documents.orderBy('updatedAt').reverse().limit(1).toArray();
         if (docs.length > 0) {
@@ -69,33 +68,36 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   }, []);
 
   return (
-    <div className="min-h-screen bg-[var(--md-sys-color-background)] text-[var(--md-sys-color-on-background)] pb-24">
+    <div className="min-h-screen bg-surface text-on-surface pb-28">
       <TopAppBar
         title="StudyVault"
-        subtitle="Semester Master & AI Coach"
+        subtitle="Private Vault & Blunt AI Coach"
         trailingAction={
           <button
             onClick={() => onNavigateTab('coach')}
-            className="p-2 rounded-full bg-[var(--md-sys-color-primary-container)] text-[var(--md-sys-color-on-primary-container)] active:scale-95 transition-transform"
+            className="p-2.5 rounded-2xl bg-primary-container text-on-primary-container active:scale-90 transition-transform cursor-pointer"
             aria-label="AI Coach"
           >
-            <Sparkles className="w-5 h-5 text-[var(--md-sys-color-primary)]" />
+            <Sparkles className="w-5 h-5 text-primary" />
           </button>
         }
       />
 
       <main className="px-4 py-3 space-y-4 max-w-2xl mx-auto">
+        {/* Spotlight Command Hub */}
         <HeroCard
           dueCount={dueCardsCount}
           streakDays={streakDays}
           onStartRevision={() => onNavigateTab('quiz')}
+          onAskCoach={() => onNavigateTab('coach')}
         />
 
+        {/* Continue Reading Horizon Module */}
         {recentDoc ? (
           <ContinueCard
             title={recentDoc.title}
             subjectName={recentDocSubject || 'General'}
-            topicName="Last opened document"
+            topicName="Last accessed lecture notes"
             progressPercent={65}
             onClick={() => onOpenDocument && onOpenDocument(recentDoc.id)}
           />
@@ -103,36 +105,47 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           <ContinueCard
             title="Welcome to StudyVault"
             subjectName="Getting Started"
-            topicName="Add your first syllabus & PDF"
+            topicName="Tap to organize your semester syllabus & docs"
             progressPercent={0}
             onClick={() => onNavigateTab('shelf')}
           />
         )}
 
-        <section>
-          <h2 className="text-sm font-semibold tracking-wide uppercase text-[var(--md-sys-color-on-surface-variant)] mb-2 px-1">
-            Overview
-          </h2>
+        {/* Bento Stat Cluster */}
+        <section className="space-y-2">
+          <div className="flex items-center justify-between px-1">
+            <h2 className="text-xs font-extrabold uppercase tracking-wider text-on-surface-variant font-mono">
+              Intelligence Bento
+            </h2>
+            <button
+              onClick={() => onNavigateTab('shelf')}
+              className="text-xs font-bold text-primary flex items-center gap-0.5 hover:underline"
+            >
+              <span>Explore Vault</span>
+              <ArrowUpRight className="w-3.5 h-3.5" />
+            </button>
+          </div>
+
           <div className="grid grid-cols-2 gap-3">
             <StatCard
               label="Review Queue"
               value={dueCardsCount}
-              sublabel="Cards pending"
+              sublabel="Cards Due"
               icon={Layers}
               variant="primary"
               shape="pill"
               onClick={() => onNavigateTab('quiz')}
             />
             <StatCard
-              label="Vault Mastery"
+              label="Vault Retention"
               value={overallMastery + '%'}
-              sublabel="Average score"
+              sublabel="Average Mastery"
               icon={Award}
               variant="tertiary"
               shape="squircle"
             />
             <StatCard
-              label="Study Documents"
+              label="Documents"
               value={totalDocsCount}
               sublabel="PDFs & Notes"
               icon={BookOpen}
@@ -141,21 +154,22 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
               onClick={() => onNavigateTab('library')}
             />
             <StatCard
-              label="Flashcards"
-              value={totalFlashcardsCount}
-              sublabel="In Leitner system"
-              icon={Sparkles}
+              label="Active Syllabus"
+              value="Semester 1"
+              sublabel="Enrolled Track"
+              icon={Compass}
               variant="surface"
               shape="clover4"
-              onClick={() => onNavigateTab('quiz')}
+              onClick={() => onNavigateTab('shelf')}
             />
           </div>
         </section>
 
+        {/* Priority Focus / Blindspot Alert */}
         {weakTopics.length > 0 && (
-          <section className="space-y-2">
-            <h2 className="text-sm font-semibold tracking-wide uppercase text-[var(--md-sys-color-on-surface-variant)] px-1">
-              Priority Focus
+          <section className="space-y-2 pt-1">
+            <h2 className="text-xs font-extrabold uppercase tracking-wider text-on-surface-variant px-1 font-mono">
+              Priority Focus & Blindspots
             </h2>
             <div className="space-y-2">
               {weakTopics.map((wt, idx) => (

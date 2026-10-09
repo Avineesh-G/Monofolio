@@ -1,103 +1,104 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { motion } from 'framer-motion';
-import {
-  Home,
-  BookOpen,
-  FolderOpen,
-  Brain,
-  Layers,
-  LucideIcon,
-} from 'lucide-react';
+import { Home, Compass, BookOpen, Layers, Brain, Settings, LucideIcon } from 'lucide-react';
 import { useMotionPreset } from '../../theme/motion';
-import { quizzesRepo } from '../../db/repos';
+import { db } from '../../db';
 
-interface NavDestination {
+export interface NavTabItem {
+  id: string;
   path: string;
   label: string;
   icon: LucideIcon;
-  badgeCount?: number;
+  badge?: number | string;
 }
 
 export const NavigationBar: React.FC = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const motionPreset = useMotionPreset();
-  const [dueCount, setDueCount] = useState<number>(0);
+  const [dueCardsCount, setDueCardsCount] = useState<number>(0);
 
   useEffect(() => {
-    quizzesRepo.getDueCards().then((cards) => {
-      setDueCount(cards.length);
-    }).catch(() => {});
+    let isMounted = true;
+    const loadDueCount = async () => {
+      try {
+        const count = await db.flashcards.where('dueAt').belowOrEqual(Date.now()).count();
+        if (isMounted) setDueCardsCount(count);
+      } catch {
+        // Fallback silently if table not yet populated
+      }
+    };
+    loadDueCount();
+    return () => {
+      isMounted = false;
+    };
   }, [location.pathname]);
-
-  const destinations: NavDestination[] = [
-    { path: '/', label: 'Home', icon: Home },
-    { path: '/shelf', label: 'Shelf', icon: BookOpen },
-    { path: '/library', label: 'Library', icon: FolderOpen },
-    { path: '/coach', label: 'Coach', icon: Brain },
-    { path: '/quiz', label: 'Quiz', icon: Layers, badgeCount: dueCount },
-  ];
 
   if (location.pathname.startsWith('/reader/') || location.pathname.startsWith('/dev/')) {
     return null;
   }
 
+  const tabs: NavTabItem[] = [
+    { id: 'home', path: '/', label: 'Home', icon: Home },
+    { id: 'shelf', path: '/shelf', label: 'Shelf', icon: Compass },
+    { id: 'library', path: '/library', label: 'Library', icon: BookOpen },
+    {
+      id: 'quiz',
+      path: '/quiz',
+      label: 'Quiz',
+      icon: Layers,
+      badge: dueCardsCount > 0 ? dueCardsCount : undefined,
+    },
+    { id: 'coach', path: '/coach', label: 'Coach', icon: Brain },
+    { id: 'settings', path: '/settings', label: 'Settings', icon: Settings },
+  ];
+
   return (
     <nav
-      className="fixed bottom-0 left-0 right-0 z-40 px-3 pb-safe-bottom select-none pointer-events-none"
-      role="navigation"
-      aria-label="Main Navigation"
+      className="fixed bottom-3 inset-x-0 z-30 flex justify-center px-4 pointer-events-none select-none"
+      aria-label="Bottom Navigation"
     >
-      <div className="max-w-md mx-auto mb-2 p-1.5 rounded-full m3-glass-elevated border border-white/10 shadow-2xl pointer-events-auto flex items-center justify-around">
-        {destinations.map((dest) => {
+      <div className="pointer-events-auto flex items-center gap-1 p-1.5 rounded-full bg-surface-container-high/95 backdrop-blur-2xl shadow-2xl">
+        {tabs.map((tab) => {
+          const Icon = tab.icon;
           const isActive =
-            dest.path === '/'
+            tab.path === '/'
               ? location.pathname === '/'
-              : location.pathname.startsWith(dest.path);
-          const Icon = dest.icon;
+              : location.pathname.startsWith(tab.path);
 
           return (
             <button
-              key={dest.path}
-              onClick={() => navigate(dest.path)}
-              className="relative flex-1 flex flex-col items-center justify-center py-2 px-1 rounded-full transition-all group focus:outline-none"
-              aria-label={dest.label}
+              key={tab.id}
+              onClick={() => navigate(tab.path)}
+              className={`relative px-3.5 py-2 rounded-full flex flex-col items-center justify-center transition-colors focus:outline-none cursor-pointer ${
+                isActive ? 'text-on-primary-container' : 'text-on-surface-variant hover:text-on-surface'
+              }`}
+              aria-label={tab.label}
+              aria-current={isActive ? 'page' : undefined}
             >
               {isActive && (
                 <motion.div
-                  layoutId="m3e-nav-pill-active"
-                  className="absolute inset-0 bg-primary/15 border border-primary/30 rounded-full shadow-sm"
+                  layoutId="m3e-active-nav-indicator"
                   transition={motionPreset.spatialDefault}
+                  className="absolute inset-0 rounded-full bg-primary-container shadow-sm"
                 />
               )}
 
-              <div className="relative z-10 flex flex-col items-center gap-0.5">
-                <div className="relative flex items-center justify-center">
-                  <Icon
-                    className={'w-5 h-5 transition-transform duration-200 group-active:scale-90 ' + (
-                      isActive
-                        ? 'text-primary stroke-[2.4px]'
-                        : 'text-on-surface-variant group-hover:text-on-surface stroke-[1.8px]'
-                    )}
-                  />
-                  {dest.badgeCount && dest.badgeCount > 0 ? (
-                    <span className="absolute -top-1 -right-2.5 px-1 min-w-[15px] h-3.5 rounded-full bg-error text-on-error text-[9px] font-bold font-mono flex items-center justify-center shadow-md animate-pulse">
-                      {dest.badgeCount > 99 ? '99+' : dest.badgeCount}
-                    </span>
-                  ) : null}
-                </div>
-
-                <span
-                  className={'text-[10px] font-bold tracking-tight transition-colors truncate max-w-[56px] ' + (
-                    isActive
-                      ? 'text-primary'
-                      : 'text-on-surface-variant/80 group-hover:text-on-surface'
-                  )}
-                >
-                  {dest.label}
-                </span>
+              <div className="relative z-10 flex items-center justify-center">
+                <Icon className={`w-5 h-5 transition-transform duration-200 ${isActive ? 'scale-110 stroke-[2.4px]' : 'stroke-[1.8px]'}`} />
+                {tab.badge !== undefined && (
+                  <span className="absolute -top-1 -right-2 px-1.5 py-0.2 rounded-full bg-error text-on-error text-[10px] font-mono font-bold leading-tight shadow-sm">
+                    {tab.badge}
+                  </span>
+                )}
               </div>
+
+              <span className={`relative z-10 text-[10px] font-bold mt-0.5 tracking-tight transition-all duration-200 ${
+                isActive ? 'opacity-100 font-extrabold text-on-primary-container' : 'opacity-70 text-on-surface-variant'
+              }`}>
+                {tab.label}
+              </span>
             </button>
           );
         })}

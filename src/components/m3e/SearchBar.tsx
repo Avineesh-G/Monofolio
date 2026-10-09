@@ -1,49 +1,43 @@
-﻿import React from 'react';
+import React from 'react';
 import { Search, X } from 'lucide-react';
 
 export interface SearchBarProps {
   value: string;
-  onChange: (value: string) => void;
+  onChange: (val: string) => void;
   placeholder?: string;
   onClear?: () => void;
   className?: string;
-  trailingAction?: React.ReactNode;
 }
 
 export const SearchBar: React.FC<SearchBarProps> = ({
   value,
   onChange,
-  placeholder = 'Search documents, notes & links...',
+  placeholder = 'Search vault, notes, concepts...',
   onClear,
   className = '',
-  trailingAction,
 }) => {
   return (
-    <div
-      className={`relative flex items-center h-12 px-4 rounded-full bg-surface-container-high text-on-surface border border-outline-variant/30 focus-within:ring-2 focus-within:ring-primary focus-within:bg-surface-container-highest transition-all shadow-sm ${className}`}
-    >
-      <Search className="w-5 h-5 text-on-surface-variant mr-3 shrink-0" />
+    <div className={`relative flex items-center w-full ${className}`}>
+      <Search className="w-4 h-4 text-on-surface-variant absolute left-3.5 pointer-events-none stroke-[2.2px]" />
       <input
         type="text"
         value={value}
         onChange={(e) => onChange(e.target.value)}
         placeholder={placeholder}
-        className="w-full bg-transparent border-0 outline-none text-on-surface placeholder:text-on-surface-variant/60 m3-body-large"
+        className="w-full pl-10 pr-10 py-2.5 rounded-2xl bg-surface-container-high text-on-surface text-sm placeholder:text-on-surface-variant/60 focus:outline-none focus:ring-2 focus:ring-primary shadow-sm transition-all"
       />
-      {value.length > 0 && (
+      {value && (
         <button
           type="button"
           onClick={() => {
             onChange('');
             if (onClear) onClear();
           }}
-          className="p-1 rounded-full text-on-surface-variant hover:text-on-surface hover:bg-black/10 shrink-0 ml-1"
-          aria-label="Clear search"
+          className="absolute right-3 p-1 rounded-full hover:bg-white/10 text-on-surface-variant focus:outline-none"
         >
-          <X className="w-4 h-4" />
+          <X className="w-3.5 h-3.5" />
         </button>
       )}
-      {trailingAction && <div className="ml-2 shrink-0">{trailingAction}</div>}
     </div>
   );
 };

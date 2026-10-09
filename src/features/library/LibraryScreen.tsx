@@ -1,8 +1,10 @@
 import React, { useEffect, useState, useMemo } from 'react';
+
 import { db, Document, Subject } from '../../db';
-import { TopAppBar, SearchBar, ButtonGroup } from '../../components/m3e';
+import { TopAppBar, SearchBar } from '../../components/m3e';
 import { DocumentCard } from '../../components/m3e/cards';
-import { FileText, BookOpen, Link as LinkIcon, Filter, Star } from 'lucide-react';
+import { BookOpen, StickyNote, Link2, Star, Filter, Layers } from 'lucide-react';
+
 
 interface LibraryScreenProps {
   onOpenDocument?: (docId: string) => void;
@@ -10,13 +12,14 @@ interface LibraryScreenProps {
 }
 
 export const LibraryScreen: React.FC<LibraryScreenProps> = ({
-  onOpenDocument
+  onOpenDocument,
 }) => {
   const [documents, setDocuments] = useState<Document[]>([]);
   const [subjectsMap, setSubjectsMap] = useState<Map<string, Subject>>(new Map());
   const [searchQuery, setSearchQuery] = useState('');
   const [filterKind, setFilterKind] = useState<'all' | 'pdf' | 'note' | 'link'>('all');
   const [starredOnly, setStarredOnly] = useState(false);
+  
 
   useEffect(() => {
     const loadData = async () => {
@@ -57,49 +60,72 @@ export const LibraryScreen: React.FC<LibraryScreenProps> = ({
     });
   }, [documents, filterKind, starredOnly, searchQuery, subjectsMap]);
 
+  const filterTabs = [
+    { id: 'all', label: 'All Items', icon: Layers },
+    { id: 'pdf', label: 'PDFs', icon: BookOpen },
+    { id: 'note', label: 'Notes', icon: StickyNote },
+    { id: 'link', label: 'Links', icon: Link2 },
+  ];
+
   return (
-    <div className="min-h-screen bg-[var(--md-sys-color-background)] text-[var(--md-sys-color-on-background)] pb-24">
+    <div className="min-h-screen bg-surface text-on-surface pb-28">
       <TopAppBar
         title="Document Library"
-        subtitle={documents.length + ' study items stored'}
+        subtitle={`${documents.length} curated study items`}
       />
 
       <main className="px-4 py-3 space-y-4 max-w-2xl mx-auto">
         <SearchBar
           value={searchQuery}
           onChange={setSearchQuery}
-          placeholder="Search PDFs, notes, summaries..."
+          placeholder="Search documents, formulas, notes..."
           onClear={() => setSearchQuery('')}
         />
 
-        <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1">
-          <ButtonGroup
-            options={[
-              { value: 'all', label: 'All' },
-              { value: 'pdf', label: 'PDFs', icon: <BookOpen className="w-3.5 h-3.5" /> },
-              { value: 'note', label: 'Notes', icon: <FileText className="w-3.5 h-3.5" /> },
-              { value: 'link', label: 'Links', icon: <LinkIcon className="w-3.5 h-3.5" /> }
-            ]}
-            value={filterKind}
-            onChange={(val) => setFilterKind(val as any)}
-          />
+        {/* Segmented Filter Bar */}
+        <div className="flex items-center justify-between gap-2 overflow-x-auto pb-1 scrollbar-none">
+          <div className="flex items-center gap-1.5 p-1 rounded-full bg-surface-container">
+            {filterTabs.map((tab) => {
+              const Icon = tab.icon;
+              const isActive = filterKind === tab.id;
+              return (
+                <button
+                  key={tab.id}
+                  onClick={() => setFilterKind(tab.id as any)}
+                  className={`px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer focus:outline-none ${
+                    isActive
+                      ? 'bg-primary text-on-primary shadow-sm'
+                      : 'text-on-surface-variant hover:text-on-surface'
+                  }`}
+                >
+                  <Icon className="w-3.5 h-3.5" />
+                  <span>{tab.label}</span>
+                </button>
+              );
+            })}
+          </div>
 
           <button
             onClick={() => setStarredOnly(!starredOnly)}
-            className={'px-3 py-1.5 rounded-full text-xs font-semibold tracking-wide flex items-center gap-1.5 transition-colors ' + (starredOnly ? 'bg-[var(--md-sys-color-primary)] text-[var(--md-sys-color-on-primary)]' : 'bg-[var(--md-sys-color-surface-container)] text-[var(--md-sys-color-on-surface)]')}
+            className={`px-3.5 py-1.5 rounded-full text-xs font-bold flex items-center gap-1.5 transition-all cursor-pointer shrink-0 focus:outline-none ${
+              starredOnly
+                ? 'bg-amber-400 text-amber-950 shadow-md'
+                : 'bg-surface-container text-on-surface-variant hover:bg-surface-container-high'
+            }`}
           >
-            <Star className="w-3.5 h-3.5 fill-current" />
+            <Star className={`w-3.5 h-3.5 ${starredOnly ? 'fill-current' : ''}`} />
             <span>Starred</span>
           </button>
         </div>
 
+        {/* Magazine Bento List */}
         <div className="space-y-2.5">
           {filteredDocuments.length === 0 ? (
-            <div className="p-8 text-center bg-[var(--md-sys-color-surface-container-low)] rounded-3xl border border-[var(--md-sys-color-outline-variant)]">
-              <Filter className="w-10 h-10 mx-auto text-[var(--md-sys-color-outline)] mb-2" />
-              <p className="font-semibold text-[var(--md-sys-color-on-surface)]">No documents found</p>
-              <p className="text-xs text-[var(--md-sys-color-on-surface-variant)] mt-1">
-                Try adjusting your search terms or filter criteria.
+            <div className="p-10 text-center bg-surface-container rounded-3xl space-y-2">
+              <Filter className="w-10 h-10 mx-auto text-on-surface-variant/40 mb-1" />
+              <p className="font-bold text-on-surface">No documents found</p>
+              <p className="text-xs text-on-surface-variant">
+                Try adjusting your search query or switching active filter tabs.
               </p>
             </div>
           ) : (

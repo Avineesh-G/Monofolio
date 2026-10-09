@@ -23,7 +23,7 @@ export const SettingsGroupCard: React.FC<SettingsGroupCardProps> = ({
   className = '',
 }) => {
   return (
-    <div className={`rounded-[24px] bg-surface-container/80 border border-white/10 m3-glass p-4 space-y-3 shadow-md ${className}`}>
+    <div className={`rounded-[24px] bg-surface-container p-4 space-y-3 shadow-md ${className}`}>
       <h3 className="text-xs font-bold uppercase tracking-wider text-primary px-1">
         {title}
       </h3>
@@ -37,12 +37,12 @@ export const SettingsGroupCard: React.FC<SettingsGroupCardProps> = ({
                 key={item.id}
                 onClick={item.onClick}
                 className={`py-3 flex items-center justify-between gap-3 ${
-                  item.onClick ? 'cursor-pointer hover:bg-white/5 px-2 rounded-xl transition-colors' : ''
+                  item.onClick ? 'cursor-pointer hover:bg-white/5 px-2 rounded-xl active:scale-98 transition-all' : ''
                 }`}
               >
                 <div className="flex items-center gap-3 min-w-0 flex-1">
                   {Icon && (
-                    <div className="w-9 h-9 rounded-xl bg-white/5 flex items-center justify-center shrink-0">
+                    <div className="w-9 h-9 rounded-xl bg-surface-container-high flex items-center justify-center shrink-0">
                       <Icon className="w-4 h-4 text-primary" />
                     </div>
                   )}
