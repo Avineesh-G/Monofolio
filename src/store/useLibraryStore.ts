@@ -65,11 +65,11 @@ export const useLibraryStore = create<LibraryState>((set, get) => ({
         // Add welcome note
         await itemsRepo.create({
           kind: 'note',
-          title: 'Welcome to StudyVault',
+          title: 'Welcome to Monofolio',
           subjectId: sub1.id,
           topicId: top1.id,
           starred: true,
-          body: '# Welcome to StudyVault\n\n- Store your PDFs, notes, and curated links.\n- Use the AI Coach to cut through fluff and get straight to exam essentials.\n- Generate Leitner flashcards and master weak spots.',
+          body: '# Welcome to Monofolio\n\n- Store your PDFs, notes, and curated links.\n- Use the AI Coach to cut through fluff and get straight to exam essentials.\n- Generate Leitner flashcards and master weak spots.',
         });
 
         const refreshedSemesters = await semestersRepo.getAll();

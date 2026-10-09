@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { db, Document, Flashcard } from '../../db';
 import { HeroCard, ContinueCard, StatCard, WeakTopicCard } from '../../components/m3e/cards';
-import { TopAppBar } from '../../components/m3e';
+import { TopAppBar, MonofolioLogo } from '../../components/m3e';
 import { Sparkles, BookOpen, Layers, Award, Compass, ArrowUpRight } from 'lucide-react';
 
 export interface HomeScreenProps {
@@ -93,8 +93,13 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
   return (
     <div className="min-h-screen bg-surface text-on-surface pb-28">
       <TopAppBar
-        title="StudyVault"
+        title="Monofolio"
         subtitle="Private Vault & Blunt AI Coach"
+        leadingAction={
+          <div className="w-10 h-10 rounded-2xl bg-primary-container/70 flex items-center justify-center p-2 shadow-inner">
+            <MonofolioLogo size={24} className="text-primary" />
+          </div>
+        }
         trailingAction={
           <button
             onClick={() => onNavigateTab('coach')}
@@ -126,7 +131,7 @@ export const HomeScreen: React.FC<HomeScreenProps> = ({
           />
         ) : (
           <ContinueCard
-            title="Welcome to StudyVault"
+            title="Welcome to Monofolio"
             subjectName="Getting Started"
             topicName="Tap to organize your semester syllabus & docs"
             progressPercent={0}

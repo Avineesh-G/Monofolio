@@ -137,7 +137,7 @@ export const CoachScreen: React.FC<CoachScreenProps> = ({
       const provider = new GroqProvider({ apiKey: groqApiKey, model: aiModel });
       const docContext = selectedDoc?.body || selectedDoc?.title || 'Study Material';
       const answer = await provider.complete({
-        system: 'You are StudyVault Blunt AI Coach. Give a direct, punchy, exam-oriented explanation. Point out common traps and what examiners expect.',
+        system: 'You are Monofolio Blunt AI Coach. Give a direct, punchy, exam-oriented explanation. Point out common traps and what examiners expect.',
         user: `Context: ${docContext.slice(0, 3000)}
 
 Student Question: ${q}`,

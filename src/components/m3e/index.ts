@@ -18,3 +18,5 @@ export * from './ToggleButton';
 export * from './TopAppBar';
 export * from './WavyProgress';
 export * from './cards';
+
+export * from './MonofolioLogo';

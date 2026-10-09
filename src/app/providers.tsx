@@ -20,7 +20,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
   }
 
   componentDidCatch(error: Error, errorInfo: ErrorInfo) {
-    console.error('StudyVault uncaught error:', error, errorInfo);
+    console.error('Monofolio uncaught error:', error, errorInfo);
   }
 
   render() {
@@ -41,7 +41,7 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
             }}
             className="px-4 py-2 rounded-lg bg-accent text-white text-xs font-semibold"
           >
-            Reload StudyVault
+            Reload Monofolio
           </button>
         </div>
       );

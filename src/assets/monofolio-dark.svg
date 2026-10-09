@@ -1,0 +1,27 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" width="100%" height="100%">
+  <defs>
+    <linearGradient id="monoDarkBg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#1e080d"/>
+      <stop offset="50%" stop-color="#140508"/>
+      <stop offset="100%" stop-color="#0d0305"/>
+    </linearGradient>
+    <linearGradient id="monoDarkGold" x1="20%" y1="20%" x2="80%" y2="80%">
+      <stop offset="0%" stop-color="#f0ece1"/>
+      <stop offset="100%" stop-color="#dcd7c5"/>
+    </linearGradient>
+    <filter id="subtleGlow" x="-20%" y="-20%" width="140%" height="140%">
+      <feDropShadow dx="0" dy="4" stdDeviation="8" flood-color="#f0ece1" flood-opacity="0.15"/>
+    </filter>
+  </defs>
+  <!-- App Icon Background Frame -->
+  <rect width="512" height="512" rx="112" fill="url(#monoDarkBg)"/>
+  
+  <!-- Monofolio Geometric Monogram -->
+  <g filter="url(#subtleGlow)" fill="url(#monoDarkGold)">
+    <!-- Primary Angled Prismatic Diamond -->
+    <polygon points="270,140 322,214 268,296 216,372 164,296" />
+    
+    <!-- Secondary Downward Triangle Inset -->
+    <polygon points="268,296 372,296 320,372" />
+  </g>
+</svg>

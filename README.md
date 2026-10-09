@@ -1,4 +1,4 @@
-# StudyVault 📚⚡
+# Monofolio 📚⚡
 
 > **Private Study Vault & Blunt AI Coach for Android**  
 > Built with React 18, TypeScript (Strict), Vite, Dexie (IndexedDB), Capacitor, Framer Motion (`LazyMotion`), and Tailwind CSS.
@@ -95,7 +95,7 @@ In Android Studio:
 To profile on a real Android device:
 1. Enable **USB Debugging** in Android Developer Options and connect your phone via USB.
 2. Open Chrome on your desktop and navigate to `chrome://inspect/#devices`.
-3. Locate **StudyVault** under Remote Target and click **Inspect**.
+3. Locate **Monofolio** under Remote Target and click **Inspect**.
 4. Open the **Performance** tab and record a 10-second trace while:
    - Rapidly scrolling the 500-item virtualized Library.
    - Switching between tabs.

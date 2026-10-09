@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import { db } from '../../db';
-import { TopAppBar, Switch } from '../../components/m3e';
+import { TopAppBar, Switch, MonofolioLogo } from '../../components/m3e';
 import { SettingsGroupCard } from '../../components/m3e/cards';
 import { useSettingsStore } from '../../store/useSettingsStore';
-import { Moon, Palette, Zap, Key, Database, ShieldCheck, Info, Sun, Check } from 'lucide-react';
+import { Moon, Palette, Zap, Key, Database, ShieldCheck, Sun, Check } from 'lucide-react';
 
 interface SettingsScreenProps {
   onClearData?: () => void;
@@ -168,11 +168,13 @@ export const SettingsScreen: React.FC<SettingsScreenProps> = () => {
           ]}
         />
 
-        <div className="p-4 rounded-[22px] bg-surface-container-low flex items-center gap-3">
-          <Info className="w-5 h-5 text-primary shrink-0" />
-          <div className="text-xs text-on-surface-variant leading-relaxed">
-            <p className="font-bold text-on-surface">StudyVault v2.0</p>
-            <p>Material 3 Expressive Design System with dynamic HCT color science.</p>
+        <div className="p-4 rounded-[22px] bg-surface-container-low flex items-center gap-3.5">
+          <div className="w-12 h-12 rounded-2xl bg-primary-container/80 flex items-center justify-center p-2.5 shrink-0 shadow-sm">
+            <MonofolioLogo size={28} className="text-primary" />
+          </div>
+          <div className="text-xs text-on-surface-variant leading-relaxed min-w-0 flex-1">
+            <p className="font-bold text-on-surface text-sm">Monofolio v2.0</p>
+            <p>Material 3 Expressive Mobile Architecture & Blunt AI Coach</p>
           </div>
         </div>
       </main>

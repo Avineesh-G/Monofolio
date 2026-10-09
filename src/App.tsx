@@ -95,7 +95,7 @@ export const App: React.FC = () => {
         <div className="w-16 h-16 rounded-3xl bg-primary/20 text-primary flex items-center justify-center mb-4">
           <Lock size={32} />
         </div>
-        <h1 className="text-lg font-bold text-on-surface mb-1">StudyVault is Locked</h1>
+        <h1 className="text-lg font-bold text-on-surface mb-1">Monofolio is Locked</h1>
         <p className="text-xs text-on-surface-variant mb-6">Enter your security PIN to access your study materials.</p>
 
         <form onSubmit={handleUnlock} className="w-full max-w-xs space-y-3">
